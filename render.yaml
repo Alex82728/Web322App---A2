@@ -1,0 +1,11 @@
+version: 1
+services:
+  - type: web
+    name: my-web-service
+    env: node      
+    plan: free     
+    branch: main 
+    buildCommand: npm install  
+    startCommand: npm start     
+    envVars:
+      NODE_ENV: production

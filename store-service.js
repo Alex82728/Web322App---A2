@@ -9,7 +9,7 @@ module.exports.initialize = () => {
     return new Promise((resolve, reject) => {
         fs.readFile('./data/items.json', 'utf8', (err, data) => {
             if (err) {
-                reject("unable to read items file");
+                reject("Unable to read items file");
                 return;
             }
 
@@ -17,7 +17,7 @@ module.exports.initialize = () => {
 
             fs.readFile('./data/categories.json', 'utf8', (err, data) => {
                 if (err) {
-                    reject("unable to read categories file");
+                    reject("Unable to read categories file");
                     return;
                 }
 
@@ -32,7 +32,7 @@ module.exports.initialize = () => {
 module.exports.getAllItems = () => {
     return new Promise((resolve, reject) => {
         if (items.length === 0) {
-            reject("no results returned");
+            reject("No results returned");
             return;
         }
         resolve(items);
@@ -44,7 +44,7 @@ module.exports.getPublishedItems = () => {
     return new Promise((resolve, reject) => {
         let publishedItems = items.filter(item => item.published);
         if (publishedItems.length === 0) {
-            reject("no results returned");
+            reject("No results returned");
             return;
         }
         resolve(publishedItems);
@@ -55,31 +55,66 @@ module.exports.getPublishedItems = () => {
 module.exports.getCategories = () => {
     return new Promise((resolve, reject) => {
         if (categories.length === 0) {
-            reject("no results returned");
+            reject("No results returned");
             return;
         }
         resolve(categories);
     });
 };
 
+// Get items by category
+module.exports.getItemsByCategory = (categoryId) => {
+    return new Promise((resolve, reject) => {
+        let filteredItems = items.filter(item => item.categoryId == categoryId); // Compare against the string
+        if (filteredItems.length === 0) {
+            reject("No items found for the given category.");
+            return;
+        }
+        resolve(filteredItems);
+    });
+};
+
+// Get items by minimum date
+module.exports.getItemsByMinDate = (minDateStr) => {
+    return new Promise((resolve, reject) => {
+        const minDate = new Date(minDateStr);
+        let filteredItems = items.filter(item => new Date(item.postDate) >= minDate);
+        
+        if (filteredItems.length === 0) {
+            reject("No items found from the given date.");
+            return;
+        }
+        resolve(filteredItems);
+    });
+};
+
+// Get an item by ID
+module.exports.getItemById = (id) => {
+    return new Promise((resolve, reject) => {
+        const item = items.find(item => item.id === parseInt(id)); // Ensure comparison is against a number
+        if (!item) {
+            reject("Item not found");
+            return;
+        }
+        resolve(item);
+    });
+};
+
 // Add a new item
 module.exports.addItem = (itemData) => {
     return new Promise((resolve, reject) => {
-       
         itemData.published = (itemData.published !== undefined) ? true : false;
 
-    
-        itemData.id = items.length ? Math.max(...items.map(item => item.id)) + 1 : 1; 
+        itemData.id = items.length ? Math.max(...items.map(item => item.id)) + 1 : 1;
 
-        items.push(itemData); 
+        items.push(itemData);
 
-   
         fs.writeFile('./data/items.json', JSON.stringify(items, null, 2), (err) => {
             if (err) {
-                reject("unable to save item");
+                reject("Unable to save item");
                 return;
             }
-            resolve(itemData); 
+            resolve(itemData);
         });
     });
 };

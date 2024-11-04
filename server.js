@@ -24,17 +24,17 @@ const app = express();
 const PORT = 8080;
 
 cloudinary.config({
-    cloud_name: 'dwdftakvt',      
-    api_key: '242931154419331',   
-    api_secret: 'CJeSPxAcuaHBYV8NpPZSd8aQP4', 
+    cloud_name: 'dwdftakvt',
+    api_key: '242931154419331',
+    api_secret: 'CJeSPxAcuaHBYV8NpPZSd8aQP4',
     secure: true
 });
 
-const upload = multer(); 
+const upload = multer();
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
-app.use(express.urlencoded({ extended: true })); 
+app.use(express.urlencoded({ extended: true }));
 
 // Homepage route
 app.get('/', (req, res) => {
@@ -49,6 +49,7 @@ app.get('/items/add', (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'addItem.html'));
 });
 
+// Route for getting published items
 app.get('/shop', (req, res) => {
     storeService.getPublishedItems()
         .then((data) => {
@@ -59,8 +60,41 @@ app.get('/shop', (req, res) => {
         });
 });
 
+// Route for getting items with filtering
 app.get('/items', (req, res) => {
-    storeService.getAllItems()
+    const category = req.query.category;
+    const minDate = req.query.minDate;
+
+    if (category) {
+        storeService.getItemsByCategory(category)
+            .then((data) => {
+                res.json(data);
+            })
+            .catch((err) => {
+                res.status(500).json({ message: err });
+            });
+    } else if (minDate) {
+        storeService.getItemsByMinDate(minDate)
+            .then((data) => {
+                res.json(data);
+            })
+            .catch((err) => {
+                res.status(500).json({ message: err });
+            });
+    } else {
+        storeService.getAllItems()
+            .then((data) => {
+                res.json(data);
+            })
+            .catch((err) => {
+                res.status(500).json({ message: err });
+            });
+    }
+});
+
+// Route for getting categories
+app.get('/categories', (req, res) => {
+    storeService.getCategories()
         .then((data) => {
             res.json(data);
         })
@@ -69,13 +103,15 @@ app.get('/items', (req, res) => {
         });
 });
 
-app.get('/categories', (req, res) => {
-    storeService.getCategories()
-        .then((data) => {
-            res.json(data);
+// Route for getting a specific item by ID
+app.get('/item/:id', (req, res) => {
+    const id = req.params.id; // Extract the ID from the URL
+    storeService.getItemById(id)
+        .then((item) => {
+            res.json(item);
         })
         .catch((err) => {
-            res.status(500).json({ message: err });
+            res.status(404).json({ message: err }); // Send a 404 for not found
         });
 });
 
@@ -118,7 +154,7 @@ app.post('/items/add', upload.single("featureImage"), (req, res) => {
 
         storeService.addItem(req.body)
             .then(() => {
-                res.redirect('/items'); 
+                res.redirect('/items');
             })
             .catch((error) => {
                 res.status(500).json({ message: "Failed to add new item." });
@@ -126,10 +162,12 @@ app.post('/items/add', upload.single("featureImage"), (req, res) => {
     }
 });
 
+// Handle 404 errors
 app.use((req, res) => {
     res.status(404).send('Page Not Found');
 });
 
+// Initialize the store service and start the server
 storeService.initialize()
     .then(() => {
         app.listen(PORT, () => {

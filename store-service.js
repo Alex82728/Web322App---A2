@@ -65,9 +65,9 @@ module.exports.getCategories = () => {
 // Get items by category
 module.exports.getItemsByCategory = (categoryId) => {
     return new Promise((resolve, reject) => {
-        let filteredItems = items.filter(item => item.categoryId == categoryId); // Compare against the string
+        let filteredItems = items.filter(item => item.categoryId === parseInt(categoryId)); // Ensure comparison against a number
         if (filteredItems.length === 0) {
-            reject("No items found for the given category.");
+            reject("No results returned for the specified category.");
             return;
         }
         resolve(filteredItems);
@@ -77,8 +77,8 @@ module.exports.getItemsByCategory = (categoryId) => {
 // Get items by minimum date
 module.exports.getItemsByMinDate = (minDateStr) => {
     return new Promise((resolve, reject) => {
-        const minDate = new Date(minDateStr);
-        let filteredItems = items.filter(item => new Date(item.postDate) >= minDate);
+        const minDate = new Date(minDateStr); // Convert the minDateStr to a Date object
+        let filteredItems = items.filter(item => new Date(item.postDate) >= minDate); // Compare postDate with minDate
         
         if (filteredItems.length === 0) {
             reject("No items found from the given date.");
@@ -91,7 +91,7 @@ module.exports.getItemsByMinDate = (minDateStr) => {
 // Get an item by ID
 module.exports.getItemById = (id) => {
     return new Promise((resolve, reject) => {
-        const item = items.find(item => item.id === parseInt(id)); // Ensure comparison is against a number
+        const item = items.find(item => item.id === parseInt(id)); // Ensure comparison against a number
         if (!item) {
             reject("Item not found");
             return;

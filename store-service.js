@@ -1,7 +1,10 @@
 const fs = require('fs');
+const path = require('path');
+
 let items = [];
 let categories = [];
 
+// Initialize the store service
 module.exports.initialize = () => {
     return new Promise((resolve, reject) => {
         fs.readFile('./data/items.json', 'utf8', (err, data) => {
@@ -25,6 +28,7 @@ module.exports.initialize = () => {
     });
 };
 
+// Get all items
 module.exports.getAllItems = () => {
     return new Promise((resolve, reject) => {
         if (items.length === 0) {
@@ -35,6 +39,7 @@ module.exports.getAllItems = () => {
     });
 };
 
+// Get published items
 module.exports.getPublishedItems = () => {
     return new Promise((resolve, reject) => {
         let publishedItems = items.filter(item => item.published);
@@ -46,6 +51,7 @@ module.exports.getPublishedItems = () => {
     });
 };
 
+// Get categories
 module.exports.getCategories = () => {
     return new Promise((resolve, reject) => {
         if (categories.length === 0) {
@@ -53,5 +59,24 @@ module.exports.getCategories = () => {
             return;
         }
         resolve(categories);
+    });
+};
+
+// Add a new item
+module.exports.addItem = (newItem) => {
+    return new Promise((resolve, reject) => {
+        // Assign a unique ID for the new item
+        newItem.id = items.length ? Math.max(...items.map(item => item.id)) + 1 : 1; // Simple ID assignment
+
+        items.push(newItem); // Add the new item to the in-memory array
+
+        // Save the updated items array to a file
+        fs.writeFile('./data/items.json', JSON.stringify(items, null, 2), (err) => {
+            if (err) {
+                reject("unable to save item");
+                return;
+            }
+            resolve(newItem); // Resolve with the added item
+        });
     });
 };

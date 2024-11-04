@@ -15,19 +15,36 @@ GitHub Repository URL: https://github.com/azaporojan_seneca/Web-322--app
 
 const express = require('express');
 const path = require('path');
-const storeService = require('./store-service'); 
+const storeService = require('./store-service');
+const multer = require("multer");
+const cloudinary = require('cloudinary').v2;
+const streamifier = require('streamifier');
 
 const app = express();
 const PORT = 8080;
 
 
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Route for the /about page
-app.get('/about', (req, res) => {
-    res.sendFile(path.join(__dirname, 'views', 'about.html')); 
+cloudinary.config({
+    cloud_name: 'dwdftakvt',      
+    api_key: '242931154419331',   
+    api_secret: 'CJeSPxAcuaHBYV8NpPZSd8aQP4c', 
+    secure: true
 });
 
+
+const upload = multer(); 
+
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true })); 
+
+app.get('/about', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'about.html'));
+});
+
+app.get('/items/add', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'addItem.html'));
+});
 
 app.get('/shop', (req, res) => {
     storeService.getPublishedItems()
@@ -39,7 +56,6 @@ app.get('/shop', (req, res) => {
         });
 });
 
-
 app.get('/items', (req, res) => {
     storeService.getAllItems()
         .then((data) => {
@@ -49,7 +65,6 @@ app.get('/items', (req, res) => {
             res.status(500).json({ message: err });
         });
 });
-
 
 app.get('/categories', (req, res) => {
     storeService.getCategories()
@@ -62,10 +77,56 @@ app.get('/categories', (req, res) => {
 });
 
 
+app.post('/items/add', upload.single("featureImage"), (req, res) => {
+    if (req.file) {
+        let streamUpload = (req) => {
+            return new Promise((resolve, reject) => {
+                let stream = cloudinary.uploader.upload_stream(
+                    (error, result) => {
+                        if (result) {
+                            resolve(result);
+                        } else {
+                            reject(error);
+                        }
+                    }
+                );
+
+                streamifier.createReadStream(req.file.buffer).pipe(stream);
+            });
+        };
+
+        async function upload(req) {
+            let result = await streamUpload(req);
+            console.log(result);
+            return result;
+        }
+
+        upload(req).then((uploaded) => {
+            processItem(uploaded.url);
+        }).catch((error) => {
+            res.status(500).json({ message: "Failed to upload image to Cloudinary." });
+        });
+    } else {
+        processItem("");
+    }
+
+    function processItem(imageUrl) {
+        req.body.featureImage = imageUrl;
+
+        
+        storeService.addItem(req.body)
+            .then(() => {
+                res.redirect('/items'); 
+            })
+            .catch((error) => {
+                res.status(500).json({ message: "Failed to add new item." });
+            });
+    }
+});
+
 app.use((req, res) => {
     res.status(404).send('Page Not Found');
 });
-
 
 storeService.initialize()
     .then(() => {

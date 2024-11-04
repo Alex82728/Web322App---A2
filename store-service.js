@@ -63,20 +63,23 @@ module.exports.getCategories = () => {
 };
 
 // Add a new item
-module.exports.addItem = (newItem) => {
+module.exports.addItem = (itemData) => {
     return new Promise((resolve, reject) => {
-        // Assign a unique ID for the new item
-        newItem.id = items.length ? Math.max(...items.map(item => item.id)) + 1 : 1; // Simple ID assignment
+       
+        itemData.published = (itemData.published !== undefined) ? true : false;
 
-        items.push(newItem); // Add the new item to the in-memory array
+    
+        itemData.id = items.length ? Math.max(...items.map(item => item.id)) + 1 : 1; 
 
-        // Save the updated items array to a file
+        items.push(itemData); 
+
+   
         fs.writeFile('./data/items.json', JSON.stringify(items, null, 2), (err) => {
             if (err) {
                 reject("unable to save item");
                 return;
             }
-            resolve(newItem); // Resolve with the added item
+            resolve(itemData); 
         });
     });
 };

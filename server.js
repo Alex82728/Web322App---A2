@@ -23,14 +23,12 @@ const streamifier = require('streamifier');
 const app = express();
 const PORT = 8080;
 
-
 cloudinary.config({
     cloud_name: 'dwdftakvt',      
     api_key: '242931154419331',   
-    api_secret: 'CJeSPxAcuaHBYV8NpPZSd8aQP4c', 
+    api_secret: 'CJeSPxAcuaHBYV8NpPZSd8aQP4', 
     secure: true
 });
-
 
 const upload = multer(); 
 
@@ -76,8 +74,9 @@ app.get('/categories', (req, res) => {
         });
 });
 
-
+// POST route for adding new items
 app.post('/items/add', upload.single("featureImage"), (req, res) => {
+    // Check if an image file is uploaded
     if (req.file) {
         let streamUpload = (req) => {
             return new Promise((resolve, reject) => {
@@ -91,6 +90,7 @@ app.post('/items/add', upload.single("featureImage"), (req, res) => {
                     }
                 );
 
+                // Create a readable stream from the uploaded file buffer
                 streamifier.createReadStream(req.file.buffer).pipe(stream);
             });
         };
@@ -107,16 +107,16 @@ app.post('/items/add', upload.single("featureImage"), (req, res) => {
             res.status(500).json({ message: "Failed to upload image to Cloudinary." });
         });
     } else {
-        processItem("");
+        processItem(""); // No image uploaded, proceed with empty string for imageUrl
     }
 
     function processItem(imageUrl) {
-        req.body.featureImage = imageUrl;
+        req.body.featureImage = imageUrl; // Add the image URL to the item data
 
-        
+        // Add the new item using storeService's addItem function
         storeService.addItem(req.body)
             .then(() => {
-                res.redirect('/items'); 
+                res.redirect('/items'); // Redirect to the items page after successful addition
             })
             .catch((error) => {
                 res.status(500).json({ message: "Failed to add new item." });
@@ -128,6 +128,7 @@ app.use((req, res) => {
     res.status(404).send('Page Not Found');
 });
 
+// Initialize the store service and start the server
 storeService.initialize()
     .then(() => {
         app.listen(PORT, () => {

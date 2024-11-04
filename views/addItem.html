@@ -28,7 +28,7 @@
                     <a class="nav-link" href="/about">About</a> 
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link active" href="/items/add">Add Item</a> <!-- Add active class here -->
+                    <a class="nav-link active" href="/items/add">Add Item</a>
                 </li>
             </ul>
         </div>
@@ -36,7 +36,7 @@
     
     <div class="container mt-4">
         <h2>Add a New Item</h2>
-        <form action="/items/add" method="POST" enctype="multipart/form-data"> <!-- Added enctype -->
+        <form action="/items/add" method="POST" enctype="multipart/form-data">
             <div class="form-group">
                 <label for="name">Item Name</label>
                 <input type="text" class="form-control" id="name" name="name" required>
@@ -63,7 +63,7 @@
             <div class="form-group">
                 <label for="published">Published</label>
                 <select class="form-control" id="published" name="published">
-                    <option value="true">Yes</option>
+                    <option value="true" selected>Yes</option>
                     <option value="false">No</option>
                 </select>
             </div>

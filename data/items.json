@@ -239,7 +239,7 @@
     "description": "Protective bars to prevent damage during a fall.",
     "published": false
   },
-  {
+  {   
     "name": "Gloves",
     "categoryId": "3",
     "price": "100",
@@ -247,5 +247,14 @@
     "published": true,
     "featureImage": "http://res.cloudinary.com/dwdftakvt/image/upload/v1730767040/opss6t8e4edzhamo6rsp.jpg",
     "id": 31
+  },
+  {
+    "id": 32,
+    "featureImage": "https://res.cloudinary.com/dwdftakvt/image/upload/v1730767496/hyp7tkqligt8hw3mmxuu.png",
+    "published": true,
+    "name": "Full Face Helmet",
+    "categoryId": "1",
+    "price": "2000",
+    "description": "Racing helmet"
   }
 ]

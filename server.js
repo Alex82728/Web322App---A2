@@ -26,7 +26,7 @@ const PORT = 8080;
 cloudinary.config({
     cloud_name: 'dwdftakvt',
     api_key: '242931154419331',
-    api_secret: 'CJeSPxAcuaHBYV8NpPZSd8aQP4',
+    api_secret: 'CJeSPxAcuaHBYV8NpPZSd8aQP4c',
     secure: true
 });
 

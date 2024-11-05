@@ -1,242 +1,251 @@
 [
-    {
-        "id": 1,
-        "name": "Full Face Helmet",
-        "categoryId": 1,
-        "price": 199.99,
-        "description": "A full face helmet offering complete protection and comfort.",
-        "published": true
-    },
-    {
-        "id": 2,
-        "name": "Open Face Helmet",
-        "categoryId": 1,
-        "price": 149.99,
-        "description": "An open face helmet with a vintage look and great ventilation.",
-        "published": false
-    },
-    {
-        "id": 3,
-        "name": "Leather Riding Jacket",
-        "categoryId": 2,
-        "price": 249.99,
-        "description": "A classic leather jacket that combines protection and style.",
-        "published": true
-    },
-    {
-        "id": 4,
-        "name": "Cordura Riding Jacket",
-        "categoryId": 2,
-        "price": 189.99,
-        "description": "Durable Cordura jacket with armor and ventilation options.",
-        "published": true
-    },
-    {
-        "id": 5,
-        "name": "Racing Gloves",
-        "categoryId": 3,
-        "price": 79.99,
-        "description": "Professional racing gloves with touchscreen compatibility.",
-        "published": false
-    },
-    {
-        "id": 6,
-        "name": "Winter Gloves",
-        "categoryId": 3,
-        "price": 49.99,
-        "description": "Warm and waterproof gloves for cold weather riding.",
-        "published": true
-    },
-    {
-        "id": 7,
-        "name": "Armored Riding Pants",
-        "categoryId": 4,
-        "price": 139.99,
-        "description": "Protective riding pants with reinforced impact zones.",
-        "published": true
-    },
-    {
-        "id": 8,
-        "name": "Jeans with Armoring",
-        "categoryId": 4,
-        "price": 129.99,
-        "description": "Stylish jeans with internal armor for added protection.",
-        "published": true
-    },
-    {
-        "id": 9,
-        "name": "Motorcycle Boots",
-        "categoryId": 5,
-        "price": 189.99,
-        "description": "High-quality leather boots designed for motorcyclists.",
-        "published": true
-    },
-    {
-        "id": 10,
-        "name": "Adventure Boots",
-        "categoryId": 5,
-        "price": 199.99,
-        "description": "Rugged boots for adventure riders with a waterproof lining.",
-        "published": false
-    },
-    {
-        "id": 11,
-        "name": "Buffalo Leather Glove",
-        "categoryId": 3,
-        "price": 99.99,
-        "description": "Buffalo leather gloves offering great grip and protection.",
-        "published": true
-    },
-    {
-        "id": 12,
-        "name": "Reflective Vest",
-        "categoryId": 2,
-        "price": 29.99,
-        "description": "Safety vest with reflective material for visibility.",
-        "published": false
-    },
-    {
-        "id": 13,
-        "name": "Saddlebags",
-        "categoryId": 6,
-        "price": 99.99,
-        "description": "Durable saddlebags for extra storage on your motorcycle.",
-        "published": true
-    },
-    {
-        "id": 14,
-        "name": "Mesh Riding Jacket",
-        "categoryId": 2,
-        "price": 179.99,
-        "description": "Lightweight mesh jacket with armor and ventilation.",
-        "published": true
-    },
-    {
-        "id": 15,
-        "name": "Leather Touring Boots",
-        "categoryId": 5,
-        "price": 249.99,
-        "description": "Premium touring boots made from leather.",
-        "published": true
-    },
-    {
-        "id": 16,
-        "name": "Adventure Touring Jacket",
-        "categoryId": 2,
-        "price": 269.99,
-        "description": "Jacket designed for long-distance touring in all weather.",
-        "published": true
-    },
-    {
-        "id": 17,
-        "name": "Heated Riding Gloves",
-        "categoryId": 3,
-        "price": 139.99,
-        "description": "Electric gloves that keep your hands warm in cold conditions.",
-        "published": false
-    },
-    {
-        "id": 18,
-        "name": "Kevlar Riding Pants",
-        "categoryId": 4,
-        "price": 199.99,
-        "description": "Reinforced with Kevlar for extra protection.",
-        "published": true
-    },
-    {
-        "id": 19,
-        "name": "Off-Road Helmet",
-        "categoryId": 1,
-        "price": 249.99,
-        "description": "Helmet designed for off-road adventure riding.",
-        "published": true
-    },
-    {
-        "id": 20,
-        "name": "Modular Helmet",
-        "categoryId": 1,
-        "price": 279.99,
-        "description": "Helmet that can convert between full face and open face.",
-        "published": false
-    },
-    {
-        "id": 21,
-        "name": "Motorcycle Backpack",
-        "categoryId": 6,
-        "price": 89.99,
-        "description": "Backpack designed specifically for motorcyclists.",
-        "published": true
-    },
-    {
-        "id": 22,
-        "name": "Chain Lube",
-        "categoryId": 6,
-        "price": 14.99,
-        "description": "Lubricant for motorcycle chains.",
-        "published": true
-    },
-    {
-        "id": 23,
-        "name": "Motorcycle Cover",
-        "categoryId": 6,
-        "price": 59.99,
-        "description": "Protective cover for motorcycles.",
-        "published": true
-    },
-    {
-        "id": 24,
-        "name": "Bluetooth Helmet Intercom",
-        "categoryId": 6,
-        "price": 149.99,
-        "description": "Communication device for motorcyclists.",
-        "published": true
-    },
-    {
-        "id": 25,
-        "name": "Winter Motorcycle Jacket",
-        "categoryId": 2,
-        "price": 199.99,
-        "description": "Insulated jacket for winter riding.",
-        "published": true
-    },
-    {
-        "id": 26,
-        "name": "Adventure Touring Pants",
-        "categoryId": 4,
-        "price": 179.99,
-        "description": "Rugged pants for off-road and adventure riding.",
-        "published": true
-    },
-    {
-        "id": 27,
-        "name": "Motorcycle Phone Mount",
-        "categoryId": 6,
-        "price": 39.99,
-        "description": "Mount for attaching your phone to the motorcycle.",
-        "published": true
-    },
-    {
-        "id": 28,
-        "name": "Neck Warmer",
-        "categoryId": 6,
-        "price": 19.99,
-        "description": "Warm neck gaiter for winter rides.",
-        "published": true
-    },
-    {
-        "id": 29,
-        "name": "Motorcycle Cleaning Kit",
-        "categoryId": 6,
-        "price": 49.99,
-        "description": "Cleaning kit for keeping your motorcycle pristine.",
-        "published": true
-    },
-    {
-        "id": 30,
-        "name": "Crash Bars",
-        "categoryId": 6,
-        "price": 149.99,
-        "description": "Protective bars to prevent damage during a fall.",
-        "published": false
-    }
+  {
+    "id": 1,
+    "name": "Full Face Helmet",
+    "categoryId": 1,
+    "price": 199.99,
+    "description": "A full face helmet offering complete protection and comfort.",
+    "published": true
+  },
+  {
+    "id": 2,
+    "name": "Open Face Helmet",
+    "categoryId": 1,
+    "price": 149.99,
+    "description": "An open face helmet with a vintage look and great ventilation.",
+    "published": false
+  },
+  {
+    "id": 3,
+    "name": "Leather Riding Jacket",
+    "categoryId": 2,
+    "price": 249.99,
+    "description": "A classic leather jacket that combines protection and style.",
+    "published": true
+  },
+  {
+    "id": 4,
+    "name": "Cordura Riding Jacket",
+    "categoryId": 2,
+    "price": 189.99,
+    "description": "Durable Cordura jacket with armor and ventilation options.",
+    "published": true
+  },
+  {
+    "id": 5,
+    "name": "Racing Gloves",
+    "categoryId": 3,
+    "price": 79.99,
+    "description": "Professional racing gloves with touchscreen compatibility.",
+    "published": false
+  },
+  {
+    "id": 6,
+    "name": "Winter Gloves",
+    "categoryId": 3,
+    "price": 49.99,
+    "description": "Warm and waterproof gloves for cold weather riding.",
+    "published": true
+  },
+  {
+    "id": 7,
+    "name": "Armored Riding Pants",
+    "categoryId": 4,
+    "price": 139.99,
+    "description": "Protective riding pants with reinforced impact zones.",
+    "published": true
+  },
+  {
+    "id": 8,
+    "name": "Jeans with Armoring",
+    "categoryId": 4,
+    "price": 129.99,
+    "description": "Stylish jeans with internal armor for added protection.",
+    "published": true
+  },
+  {
+    "id": 9,
+    "name": "Motorcycle Boots",
+    "categoryId": 5,
+    "price": 189.99,
+    "description": "High-quality leather boots designed for motorcyclists.",
+    "published": true
+  },
+  {
+    "id": 10,
+    "name": "Adventure Boots",
+    "categoryId": 5,
+    "price": 199.99,
+    "description": "Rugged boots for adventure riders with a waterproof lining.",
+    "published": false
+  },
+  {
+    "id": 11,
+    "name": "Buffalo Leather Glove",
+    "categoryId": 3,
+    "price": 99.99,
+    "description": "Buffalo leather gloves offering great grip and protection.",
+    "published": true
+  },
+  {
+    "id": 12,
+    "name": "Reflective Vest",
+    "categoryId": 2,
+    "price": 29.99,
+    "description": "Safety vest with reflective material for visibility.",
+    "published": false
+  },
+  {
+    "id": 13,
+    "name": "Saddlebags",
+    "categoryId": 6,
+    "price": 99.99,
+    "description": "Durable saddlebags for extra storage on your motorcycle.",
+    "published": true
+  },
+  {
+    "id": 14,
+    "name": "Mesh Riding Jacket",
+    "categoryId": 2,
+    "price": 179.99,
+    "description": "Lightweight mesh jacket with armor and ventilation.",
+    "published": true
+  },
+  {
+    "id": 15,
+    "name": "Leather Touring Boots",
+    "categoryId": 5,
+    "price": 249.99,
+    "description": "Premium touring boots made from leather.",
+    "published": true
+  },
+  {
+    "id": 16,
+    "name": "Adventure Touring Jacket",
+    "categoryId": 2,
+    "price": 269.99,
+    "description": "Jacket designed for long-distance touring in all weather.",
+    "published": true
+  },
+  {
+    "id": 17,
+    "name": "Heated Riding Gloves",
+    "categoryId": 3,
+    "price": 139.99,
+    "description": "Electric gloves that keep your hands warm in cold conditions.",
+    "published": false
+  },
+  {
+    "id": 18,
+    "name": "Kevlar Riding Pants",
+    "categoryId": 4,
+    "price": 199.99,
+    "description": "Reinforced with Kevlar for extra protection.",
+    "published": true
+  },
+  {
+    "id": 19,
+    "name": "Off-Road Helmet",
+    "categoryId": 1,
+    "price": 249.99,
+    "description": "Helmet designed for off-road adventure riding.",
+    "published": true
+  },
+  {
+    "id": 20,
+    "name": "Modular Helmet",
+    "categoryId": 1,
+    "price": 279.99,
+    "description": "Helmet that can convert between full face and open face.",
+    "published": false
+  },
+  {
+    "id": 21,
+    "name": "Motorcycle Backpack",
+    "categoryId": 6,
+    "price": 89.99,
+    "description": "Backpack designed specifically for motorcyclists.",
+    "published": true
+  },
+  {
+    "id": 22,
+    "name": "Chain Lube",
+    "categoryId": 6,
+    "price": 14.99,
+    "description": "Lubricant for motorcycle chains.",
+    "published": true
+  },
+  {
+    "id": 23,
+    "name": "Motorcycle Cover",
+    "categoryId": 6,
+    "price": 59.99,
+    "description": "Protective cover for motorcycles.",
+    "published": true
+  },
+  {
+    "id": 24,
+    "name": "Bluetooth Helmet Intercom",
+    "categoryId": 6,
+    "price": 149.99,
+    "description": "Communication device for motorcyclists.",
+    "published": true
+  },
+  {
+    "id": 25,
+    "name": "Winter Motorcycle Jacket",
+    "categoryId": 2,
+    "price": 199.99,
+    "description": "Insulated jacket for winter riding.",
+    "published": true
+  },
+  {
+    "id": 26,
+    "name": "Adventure Touring Pants",
+    "categoryId": 4,
+    "price": 179.99,
+    "description": "Rugged pants for off-road and adventure riding.",
+    "published": true
+  },
+  {
+    "id": 27,
+    "name": "Motorcycle Phone Mount",
+    "categoryId": 6,
+    "price": 39.99,
+    "description": "Mount for attaching your phone to the motorcycle.",
+    "published": true
+  },
+  {
+    "id": 28,
+    "name": "Neck Warmer",
+    "categoryId": 6,
+    "price": 19.99,
+    "description": "Warm neck gaiter for winter rides.",
+    "published": true
+  },
+  {
+    "id": 29,
+    "name": "Motorcycle Cleaning Kit",
+    "categoryId": 6,
+    "price": 49.99,
+    "description": "Cleaning kit for keeping your motorcycle pristine.",
+    "published": true
+  },
+  {
+    "id": 30,
+    "name": "Crash Bars",
+    "categoryId": 6,
+    "price": 149.99,
+    "description": "Protective bars to prevent damage during a fall.",
+    "published": false
+  },
+  {
+    "name": "Gloves",
+    "categoryId": "3",
+    "price": "100",
+    "description": "Gloves",
+    "published": true,
+    "featureImage": "http://res.cloudinary.com/dwdftakvt/image/upload/v1730767040/opss6t8e4edzhamo6rsp.jpg",
+    "id": 31
+  }
 ]

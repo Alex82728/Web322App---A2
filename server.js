@@ -38,7 +38,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Homepage route
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'views', 'home.html')); // Serve the home page
+    res.sendFile(path.join(__dirname, 'views', 'home.html'));
 });
 
 app.get('/about', (req, res) => {
@@ -105,13 +105,13 @@ app.get('/categories', (req, res) => {
 
 // Route for getting a specific item by ID
 app.get('/item/:id', (req, res) => {
-    const id = req.params.id; // Extract the ID from the URL
+    const id = req.params.id;
     storeService.getItemById(id)
         .then((item) => {
             res.json(item);
         })
         .catch((err) => {
-            res.status(404).json({ message: err }); // Send a 404 for not found
+            res.status(404).json({ message: err });
         });
 });
 
@@ -129,51 +129,55 @@ app.post('/items/add', upload.single("featureImage"), (req, res) => {
                         }
                     }
                 );
-
                 streamifier.createReadStream(req.file.buffer).pipe(stream);
             });
         };
 
-        async function upload(req) {
-            let result = await streamUpload(req);
-            console.log(result);
-            return result;
-        }
+        streamUpload(req)
+            .then((result) => {
+                const newItem = {
+                    id: 0, // Placeholder, will be updated in store service
+                    featureImage: result.secure_url,
+                    published: req.body.published === 'true',
+                    ...req.body // Include other item data from the form
+                };
 
-        upload(req).then((uploaded) => {
-            processItem(uploaded.url);
-        }).catch((error) => {
-            res.status(500).json({ message: "Failed to upload image to Cloudinary." });
-        });
-    } else {
-        processItem(""); // No image uploaded
-    }
-
-    function processItem(imageUrl) {
-        req.body.featureImage = imageUrl; // Add the image URL to the item data
-
-        storeService.addItem(req.body)
-            .then(() => {
-                res.redirect('/items');
+                storeService.addItem(newItem)
+                    .then((item) => {
+                        res.status(201).json(item);
+                    })
+                    .catch((err) => {
+                        res.status(500).json({ message: err });
+                    });
             })
             .catch((error) => {
-                res.status(500).json({ message: "Failed to add new item." });
+                res.status(500).json({ message: "Upload failed." });
             });
+    } else {
+        res.status(400).json({ message: "No image file provided." });
     }
 });
 
-// Handle 404 errors
-app.use((req, res) => {
-    res.status(404).send('Page Not Found');
+// Route for deleting an item by ID
+app.delete('/items/:id', (req, res) => {
+    const itemId = req.params.id; // Get item ID from URL
+
+    storeService.deleteItem(itemId)
+        .then(() => {
+            res.status(200).json({ message: "Item deleted successfully." });
+        })
+        .catch((error) => {
+            res.status(500).json({ message: error.message });
+        });
 });
 
-// Initialize the store service and start the server
+// Start the server
 storeService.initialize()
     .then(() => {
         app.listen(PORT, () => {
             console.log(`Server is running on http://localhost:${PORT}`);
         });
     })
-    .catch((err) => {
-        console.error("Failed to start server:", err);
+    .catch((error) => {
+        console.error("Failed to initialize store service:", error);
     });

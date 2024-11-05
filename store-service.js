@@ -7,21 +7,31 @@ let categories = [];
 // Initialize the store service
 module.exports.initialize = () => {
     return new Promise((resolve, reject) => {
-        fs.readFile('./data/items.json', 'utf8', (err, data) => {
+        fs.readFile(path.join(__dirname, './data/items.json'), 'utf8', (err, data) => {
             if (err) {
-                reject("Unable to read items file");
+                reject("Unable to read items file: " + err.message);
                 return;
             }
 
-            items = JSON.parse(data);
+            try {
+                items = JSON.parse(data);
+            } catch (parseErr) {
+                reject("Failed to parse items data: " + parseErr.message);
+                return;
+            }
 
-            fs.readFile('./data/categories.json', 'utf8', (err, data) => {
+            fs.readFile(path.join(__dirname, './data/categories.json'), 'utf8', (err, data) => {
                 if (err) {
-                    reject("Unable to read categories file");
+                    reject("Unable to read categories file: " + err.message);
                     return;
                 }
 
-                categories = JSON.parse(data);
+                try {
+                    categories = JSON.parse(data);
+                } catch (parseErr) {
+                    reject("Failed to parse categories data: " + parseErr.message);
+                    return;
+                }
                 resolve();
             });
         });
@@ -42,7 +52,7 @@ module.exports.getAllItems = () => {
 // Get published items
 module.exports.getPublishedItems = () => {
     return new Promise((resolve, reject) => {
-        let publishedItems = items.filter(item => item.published);
+        const publishedItems = items.filter(item => item.published);
         if (publishedItems.length === 0) {
             reject("No results returned");
             return;
@@ -65,7 +75,7 @@ module.exports.getCategories = () => {
 // Get items by category
 module.exports.getItemsByCategory = (categoryId) => {
     return new Promise((resolve, reject) => {
-        let filteredItems = items.filter(item => item.categoryId === parseInt(categoryId)); // Ensure comparison against a number
+        const filteredItems = items.filter(item => item.categoryId === parseInt(categoryId));
         if (filteredItems.length === 0) {
             reject("No results returned for the specified category.");
             return;
@@ -77,8 +87,8 @@ module.exports.getItemsByCategory = (categoryId) => {
 // Get items by minimum date
 module.exports.getItemsByMinDate = (minDateStr) => {
     return new Promise((resolve, reject) => {
-        const minDate = new Date(minDateStr); // Convert the minDateStr to a Date object
-        let filteredItems = items.filter(item => new Date(item.postDate) >= minDate); // Compare postDate with minDate
+        const minDate = new Date(minDateStr);
+        const filteredItems = items.filter(item => new Date(item.postDate) >= minDate);
         
         if (filteredItems.length === 0) {
             reject("No items found from the given date.");
@@ -91,7 +101,7 @@ module.exports.getItemsByMinDate = (minDateStr) => {
 // Get an item by ID
 module.exports.getItemById = (id) => {
     return new Promise((resolve, reject) => {
-        const item = items.find(item => item.id === parseInt(id)); // Ensure comparison against a number
+        const item = items.find(item => item.id === parseInt(id));
         if (!item) {
             reject("Item not found");
             return;
@@ -103,15 +113,13 @@ module.exports.getItemById = (id) => {
 // Add a new item
 module.exports.addItem = (itemData) => {
     return new Promise((resolve, reject) => {
-        itemData.published = (itemData.published !== undefined) ? true : false;
-
+        itemData.published = itemData.published !== undefined ? itemData.published === 'true' : false;
         itemData.id = items.length ? Math.max(...items.map(item => item.id)) + 1 : 1;
-
         items.push(itemData);
 
-        fs.writeFile('./data/items.json', JSON.stringify(items, null, 2), (err) => {
+        fs.writeFile(path.join(__dirname, './data/items.json'), JSON.stringify(items, null, 2), (err) => {
             if (err) {
-                reject("Unable to save item");
+                reject("Unable to save item: " + err.message);
                 return;
             }
             resolve(itemData);

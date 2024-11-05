@@ -117,49 +117,45 @@ app.get('/item/:id', (req, res) => {
 
 // POST route for adding new items
 app.post('/items/add', upload.single("featureImage"), (req, res) => {
-    if (req.file) {
-        let streamUpload = (req) => {
-            return new Promise((resolve, reject) => {
-                let stream = cloudinary.uploader.upload_stream(
-                    (error, result) => {
-                        if (result) {
-                            resolve(result);
-                        } else {
-                            reject(error);
-                        }
-                    }
-                );
-
-                streamifier.createReadStream(req.file.buffer).pipe(stream);
+    // Helper function for uploading the image
+    let uploadImageToCloudinary = (file) => {
+        return new Promise((resolve, reject) => {
+            let stream = cloudinary.uploader.upload_stream((error, result) => {
+                if (result) {
+                    resolve(result);
+                } else {
+                    reject(error);
+                }
             });
-        };
-
-        async function upload(req) {
-            let result = await streamUpload(req);
-            console.log(result);
-            return result;
-        }
-
-        upload(req).then((uploaded) => {
-            processItem(uploaded.url);
-        }).catch((error) => {
-            res.status(500).json({ message: "Failed to upload image to Cloudinary." });
+            streamifier.createReadStream(file.buffer).pipe(stream);
         });
-    } else {
-        processItem(""); // No image uploaded
-    }
+    };
 
-    function processItem(imageUrl) {
-        req.body.featureImage = imageUrl; // Add the image URL to the item data
+    // Upload the image if present
+    (async () => {
+        try {
+            let imageUrl = "";
+            if (req.file) {
+                const result = await uploadImageToCloudinary(req.file);
+                imageUrl = result.url;
+            }
 
-        storeService.addItem(req.body)
-            .then(() => {
-                res.redirect('/items');
-            })
-            .catch((error) => {
+            // Proceed with adding item using the processed image URL
+            req.body.featureImage = imageUrl;
+            await storeService.addItem(req.body);
+
+            res.redirect('/items');
+        } catch (error) {
+            // Provide specific error messages depending on the step that failed
+            if (error.name === 'MulterError') {
+                res.status(400).json({ message: "File upload error. Please check the file size and format." });
+            } else if (error.name === 'CloudinaryError') {
+                res.status(500).json({ message: "Failed to upload image to Cloudinary." });
+            } else {
                 res.status(500).json({ message: "Failed to add new item." });
-            });
-    }
+            }
+        }
+    })();
 });
 
 // Handle 404 errors

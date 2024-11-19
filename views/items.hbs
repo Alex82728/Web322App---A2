@@ -1,0 +1,7 @@
+<h1>Items</h1>
+<p>Here are all the available items in the store.</p>
+<ul>
+    {{#each items}}
+        <li>{{this.name}} - ${{this.price}}</li>
+    {{/each}}
+</ul>

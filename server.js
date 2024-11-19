@@ -16,6 +16,7 @@ Render App URL: https://web322app-a2-1.onrender.com
 GitHub Repository URL: https://github.com/azaporojan_seneca/Web-322--app
 
 ********************************************************************************/ 
+
 const express = require('express');
 const path = require('path');
 const exphbs = require('express-handlebars');
@@ -69,104 +70,89 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
+
+// Home Route
 app.get('/', (req, res) => {
-    res.render('home', { title: "Motorcycle Shop" });
+    res.render('home', { title: "Motorcycle Shop", activeRoute: req.path });
 });
 
+// About Route
 app.get('/about', (req, res) => {
-    res.render('about', { title: "About Us" });
+    res.render('about', { title: "About Us", activeRoute: req.path });
 });
 
+// Add Item Route
 app.get('/items/add', (req, res) => {
-    res.render('addItem', { title: "Add New Item" });
+    res.render('addItem', { title: "Add New Item", activeRoute: req.path });
 });
 
+// Shop Route (Display Published Items)
 app.get('/shop', (req, res) => {
     storeService.getPublishedItems()
         .then((data) => {
-            res.render('shop', { title: "Shop", items: data });
+            res.render('shop', { title: "Shop", items: data, activeRoute: req.path });
         })
         .catch((err) => {
             res.status(500).send("Unable to fetch items.");
         });
 });
 
+// Items Route (Filtered by Category or Date)
+const renderItems = (res, title, promise) => {
+    promise
+        .then(data => {
+            res.render('items', { title, items: data, activeRoute: req.path });
+        })
+        .catch(err => {
+            res.status(500).send(`Unable to fetch items: ${err.message}`);
+        });
+};
+
 app.get('/items', (req, res) => {
     const category = req.query.category;
     const minDate = req.query.minDate;
 
     if (category) {
-        storeService.getItemsByCategory(category)
-            .then((data) => {
-                if (data.length === 0) {
-                    res.render('items', { 
-                        title: "Filtered Items", 
-                        items: data, 
-                        message: "No items found for this category." 
-                    });
-                } else {
-                    res.render('items', { 
-                        title: "Filtered Items", 
-                        items: data 
-                    });
-                }
-            })
-            .catch((err) => {
-                res.status(500).send("Unable to fetch items.");
-            });
+        renderItems(res, "Filtered Items", storeService.getItemsByCategory(category));
     } else if (minDate) {
-        storeService.getItemsByMinDate(minDate)
-            .then((data) => {
-                res.render('items', { title: "Filtered Items", items: data });
-            })
-            .catch((err) => {
-                res.status(500).send("Unable to fetch items.");
-            });
+        renderItems(res, "Filtered Items", storeService.getItemsByMinDate(minDate));
     } else {
-        storeService.getAllItems()
-            .then((data) => {
-                if (data.length === 0) {
-                    res.render('items', { 
-                        title: "All Items", 
-                        items: data, 
-                        message: "No items found." 
-                    });
-                } else {
-                    res.render('items', { 
-                        title: "All Items", 
-                        items: data 
-                    });
-                }
-            })
-            .catch((err) => {
-                res.status(500).send("Unable to fetch items.");
-            });
+        renderItems(res, "All Items", storeService.getAllItems());
     }
 });
 
+// Categories Route
 app.get('/categories', (req, res) => {
     storeService.getCategories()
         .then((data) => {
-            res.render('categories', { title: "Categories", categories: data });
+            res.render('categories', { title: "Categories", categories: data, activeRoute: req.path });
         })
         .catch((err) => {
             res.status(500).send("Unable to fetch categories.");
         });
 });
 
+// Item Details Route (By ID)
 app.get('/item/:id', (req, res) => {
     const id = req.params.id;
     storeService.getItemById(id)
         .then((item) => {
-            res.render('itemDetails', { title: "Item Details", item });
+            res.render('itemDetails', { title: "Item Details", item, activeRoute: req.path });
         })
         .catch((err) => {
             res.status(404).send("Item not found.");
         });
 });
 
+// Add Item (POST route with Image Upload)
 app.post('/items/add', upload.single("featureImage"), (req, res) => {
     if (req.file) {
+        // Validate that the uploaded file is an image
+        const fileType = req.file.mimetype.split('/')[0];
+        if (fileType !== 'image') {
+            return res.status(400).send("Only image files are allowed.");
+        }
+
         let streamUpload = (req) => {
             return new Promise((resolve, reject) => {
                 let stream = cloudinary.uploader.upload_stream(
@@ -207,6 +193,7 @@ app.post('/items/add', upload.single("featureImage"), (req, res) => {
     }
 });
 
+// Delete Item
 app.delete('/items/:id', (req, res) => {
     const itemId = req.params.id;
 

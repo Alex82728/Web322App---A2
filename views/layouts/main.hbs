@@ -15,11 +15,21 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
-                {{#navLink "/"}}Home{{/navLink}}
-                {{#navLink "/shop"}}Shop{{/navLink}}
-                {{#navLink "/items"}}Items{{/navLink}}
-                {{#navLink "/about"}}About{{/navLink}}
-                {{#navLink "/items/add"}}Add Item{{/navLink}}
+                <li class="nav-item {{#if (eq @route '/' )}}active{{/if}}">
+                    <a class="nav-link" href="/">Home</a>
+                </li>
+                <li class="nav-item {{#if (eq @route '/shop') }}active{{/if}}">
+                    <a class="nav-link" href="/shop">Shop</a>
+                </li>
+                <li class="nav-item {{#if (eq @route '/items') }}active{{/if}}">
+                    <a class="nav-link" href="/items">Items</a>
+                </li>
+                <li class="nav-item {{#if (eq @route '/about') }}active{{/if}}">
+                    <a class="nav-link" href="/about">About</a>
+                </li>
+                <li class="nav-item {{#if (eq @route '/items/add') }}active{{/if}}">
+                    <a class="nav-link" href="/items/add">Add Item</a>
+                </li>
             </ul>
         </div>
     </nav>

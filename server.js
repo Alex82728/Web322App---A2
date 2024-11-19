@@ -19,6 +19,7 @@ GitHub Repository URL: https://github.com/azaporojan_seneca/Web-322--app
 
 const express = require('express');
 const path = require('path');
+const exphbs = require('express-handlebars');
 const storeService = require('./store-service');
 const multer = require("multer");
 const cloudinary = require('cloudinary').v2;
@@ -27,7 +28,8 @@ const streamifier = require('streamifier');
 const app = express();
 const PORT = 8080;
 
-cloudinary.config({
+// Cloudinary Configuration
+cloudinary.config({         
     cloud_name: 'dwdftakvt',
     api_key: '242931154419331',
     api_secret: 'CJeSPxAcuaHBYV8NpPZSd8aQP4c',
@@ -36,35 +38,62 @@ cloudinary.config({
 
 const upload = multer();
 
+// Configure Express to use Handlebars with custom helpers
+app.engine('.hbs', exphbs.engine({
+    extname: '.hbs',
+    helpers: {
+        // Helper to dynamically set "active" class in the navbar
+        navLink: function (url, options) {
+            return `<li class="nav-item${(url == app.locals.activeRoute ? ' active' : '')}">
+                        <a class="nav-link" href="${url}">${options.fn(this)}</a>
+                    </li>`;
+        },
+        // Helper to check for equality
+        equal: function (lvalue, rvalue, options) {
+            if (lvalue != rvalue) {
+                return options.inverse(this);
+            } else {
+                return options.fn(this);
+            }
+        }
+    }
+}));
+app.set('view engine', '.hbs');
+
+// Middleware to set active route
+app.use((req, res, next) => {
+    app.locals.activeRoute = req.path;
+    next();
+});
+
+// Middleware
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Homepage route
+// Routes
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'views', 'home.html'));
+    res.render('home', { title: "Motorcycle Shop" });
 });
 
 app.get('/about', (req, res) => {
-    res.sendFile(path.join(__dirname, 'views', 'about.html'));
+    res.render('about', { title: "About Us" });
 });
 
 app.get('/items/add', (req, res) => {
-    res.sendFile(path.join(__dirname, 'views', 'addItem.html'));
+    res.render('addItem', { title: "Add New Item" });
 });
 
-// Route for getting published items
 app.get('/shop', (req, res) => {
     storeService.getPublishedItems()
         .then((data) => {
-            res.json(data);
+            res.render('shop', { title: "Shop", items: data });
         })
         .catch((err) => {
-            res.status(500).json({ message: err });
+            res.status(500).send("Unable to fetch items.");
         });
 });
 
-// Route for getting items with filtering
 app.get('/items', (req, res) => {
     const category = req.query.category;
     const minDate = req.query.minDate;
@@ -72,54 +101,51 @@ app.get('/items', (req, res) => {
     if (category) {
         storeService.getItemsByCategory(category)
             .then((data) => {
-                res.json(data);
+                res.render('items', { title: "Filtered Items", items: data });
             })
             .catch((err) => {
-                res.status(500).json({ message: err });
+                res.status(500).send("Unable to fetch items.");
             });
     } else if (minDate) {
         storeService.getItemsByMinDate(minDate)
             .then((data) => {
-                res.json(data);
+                res.render('items', { title: "Filtered Items", items: data });
             })
             .catch((err) => {
-                res.status(500).json({ message: err });
+                res.status(500).send("Unable to fetch items.");
             });
     } else {
         storeService.getAllItems()
             .then((data) => {
-                res.json(data);
+                res.render('items', { title: "All Items", items: data });
             })
             .catch((err) => {
-                res.status(500).json({ message: err });
+                res.status(500).send("Unable to fetch items.");
             });
     }
 });
 
-// Route for getting categories
 app.get('/categories', (req, res) => {
     storeService.getCategories()
         .then((data) => {
-            res.json(data);
+            res.render('categories', { title: "Categories", categories: data });
         })
         .catch((err) => {
-            res.status(500).json({ message: err });
+            res.status(500).send("Unable to fetch categories.");
         });
 });
 
-// Route for getting a specific item by ID
 app.get('/item/:id', (req, res) => {
     const id = req.params.id;
     storeService.getItemById(id)
         .then((item) => {
-            res.json(item);
+            res.render('itemDetails', { title: "Item Details", item });
         })
         .catch((err) => {
-            res.status(404).json({ message: err });
+            res.status(404).send("Item not found.");
         });
 });
 
-// POST route for adding new items
 app.post('/items/add', upload.single("featureImage"), (req, res) => {
     if (req.file) {
         let streamUpload = (req) => {
@@ -140,38 +166,37 @@ app.post('/items/add', upload.single("featureImage"), (req, res) => {
         streamUpload(req)
             .then((result) => {
                 const newItem = {
-                    id: 0, // Placeholder, will be updated in store service
+                    id: 0,
                     featureImage: result.secure_url,
                     published: req.body.published === 'true',
-                    ...req.body // Include other item data from the form
+                    ...req.body
                 };
 
                 storeService.addItem(newItem)
-                    .then((item) => {
-                        res.status(201).json(item);
+                    .then(() => {
+                        res.redirect('/shop');
                     })
-                    .catch((err) => {
-                        res.status(500).json({ message: err });
+                    .catch(() => {
+                        res.status(500).send("Unable to add item.");
                     });
             })
-            .catch((error) => {
-                res.status(500).json({ message: "Upload failed." });
+            .catch(() => {
+                res.status(500).send("Image upload failed.");
             });
     } else {
-        res.status(400).json({ message: "No image file provided." });
+        res.status(400).send("No image file provided.");
     }
 });
 
-// Route for deleting an item by ID
 app.delete('/items/:id', (req, res) => {
-    const itemId = req.params.id; // Get item ID from URL
+    const itemId = req.params.id;
 
     storeService.deleteItem(itemId)
         .then(() => {
             res.status(200).json({ message: "Item deleted successfully." });
         })
-        .catch((error) => {
-            res.status(500).json({ message: error.message });
+        .catch(() => {
+            res.status(500).send("Unable to delete item.");
         });
 });
 

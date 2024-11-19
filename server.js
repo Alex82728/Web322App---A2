@@ -16,7 +16,6 @@ Render App URL: https://web322app-a2-1.onrender.com
 GitHub Repository URL: https://github.com/azaporojan_seneca/Web-322--app
 
 ********************************************************************************/ 
-
 const express = require('express');
 const path = require('path');
 const exphbs = require('express-handlebars');
@@ -99,7 +98,18 @@ app.get('/items', (req, res) => {
     if (category) {
         storeService.getItemsByCategory(category)
             .then((data) => {
-                res.render('items', { title: "Filtered Items", items: data });
+                if (data.length === 0) {
+                    res.render('items', { 
+                        title: "Filtered Items", 
+                        items: data, 
+                        message: "No items found for this category." 
+                    });
+                } else {
+                    res.render('items', { 
+                        title: "Filtered Items", 
+                        items: data 
+                    });
+                }
             })
             .catch((err) => {
                 res.status(500).send("Unable to fetch items.");
@@ -115,7 +125,18 @@ app.get('/items', (req, res) => {
     } else {
         storeService.getAllItems()
             .then((data) => {
-                res.render('items', { title: "All Items", items: data });
+                if (data.length === 0) {
+                    res.render('items', { 
+                        title: "All Items", 
+                        items: data, 
+                        message: "No items found." 
+                    });
+                } else {
+                    res.render('items', { 
+                        title: "All Items", 
+                        items: data 
+                    });
+                }
             })
             .catch((err) => {
                 res.status(500).send("Unable to fetch items.");

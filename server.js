@@ -42,11 +42,11 @@ const upload = multer();
 app.engine('.hbs', exphbs.engine({
     extname: '.hbs',
     helpers: {
-        // Helper to dynamically set "active" class in the navbar
         navLink: function (url, options) {
-            return `<li class="nav-item${(url == app.locals.activeRoute ? ' active' : '')}"><a class="nav-link" href="${url}">${options.fn(this)}</a></li>`;
+            return `<li class="nav-item${(url == app.locals.activeRoute ? ' active' : '')}">
+                        <a class="nav-link" href="${url}">${options.fn(this)}</a>
+                    </li>`;
         },
-        // Helper to check for equality
         equal: function (lvalue, rvalue, options) {
             if (lvalue != rvalue) {
                 return options.inverse(this);
@@ -92,7 +92,6 @@ app.get('/shop', (req, res) => {
         });
 });
 
-// Update the /items route to handle category and date filters
 app.get('/items', (req, res) => {
     const category = req.query.category;
     const minDate = req.query.minDate;
@@ -103,7 +102,7 @@ app.get('/items', (req, res) => {
                 res.render('items', { title: "Filtered Items", items: data });
             })
             .catch((err) => {
-                res.render('items', { title: "Filtered Items", message: "No items found for the selected category." });
+                res.status(500).send("Unable to fetch items.");
             });
     } else if (minDate) {
         storeService.getItemsByMinDate(minDate)
@@ -111,7 +110,7 @@ app.get('/items', (req, res) => {
                 res.render('items', { title: "Filtered Items", items: data });
             })
             .catch((err) => {
-                res.render('items', { title: "Filtered Items", message: "No items found after the selected date." });
+                res.status(500).send("Unable to fetch items.");
             });
     } else {
         storeService.getAllItems()
@@ -119,7 +118,7 @@ app.get('/items', (req, res) => {
                 res.render('items', { title: "All Items", items: data });
             })
             .catch((err) => {
-                res.render('items', { title: "All Items", message: "No items available." });
+                res.status(500).send("Unable to fetch items.");
             });
     }
 });

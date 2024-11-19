@@ -53,37 +53,33 @@ function deleteImage(publicId) {
 // Function to delete an item
 module.exports.deleteItem = (itemId) => {
     return new Promise((resolve, reject) => {
-        const itemIndex = items.findIndex(i => i.id === parseInt(itemId)); // Ensure comparison against a number
+        const itemIndex = items.findIndex(i => i.id === parseInt(itemId));
 
         if (itemIndex !== -1) {
             const item = items[itemIndex];
 
-            // If the item has a featureImage, delete it from Cloudinary
             if (item.featureImage) {
-                const publicId = item.featureImage.split('/').pop().split('.')[0]; // Extract public ID from URL
+                const publicId = item.featureImage.split('/').pop().split('.')[0];
 
                 deleteImage(publicId)
                     .then(() => {
                         items.splice(itemIndex, 1);
                         fs.writeFile(path.join(__dirname, 'data', 'items.json'), JSON.stringify(items, null, 2), (err) => {
                             if (err) {
-                                console.error("Error writing to items.json:", err);
-                                reject("Unable to delete item. Please check server logs for more details.");
+                                reject("Unable to delete item. Please check server logs.");
                                 return;
                             }
                             resolve();
                         });
                     })
                     .catch(error => {
-                        console.error("Failed to delete image from Cloudinary:", error);
                         reject("Failed to delete image from Cloudinary.");
                     });
             } else {
                 items.splice(itemIndex, 1);
                 fs.writeFile(path.join(__dirname, 'data', 'items.json'), JSON.stringify(items, null, 2), (err) => {
                     if (err) {
-                        console.error("Error writing to items.json:", err);
-                        reject("Unable to delete item. Please check server logs for more details.");
+                        reject("Unable to delete item. Please check server logs.");
                         return;
                     }
                     resolve();
@@ -177,8 +173,7 @@ module.exports.addItem = (itemData) => {
 
         fs.writeFile(path.join(__dirname, 'data', 'items.json'), JSON.stringify(items, null, 2), (err) => {
             if (err) {
-                console.error("Error writing to items.json:", err);
-                reject("Unable to save item. Please check server logs for more details.");
+                reject("Unable to save item. Please check server logs.");
                 return;
             }
             resolve(itemData);

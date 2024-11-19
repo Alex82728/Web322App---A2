@@ -137,6 +137,18 @@ module.exports.getItemsByCategory = (categoryId) => {
     });
 };
 
+// Get published items by category
+module.exports.getPublishedItemsByCategory = (categoryId) => {
+    return new Promise((resolve, reject) => {
+        let filteredItems = items.filter(item => item.published && item.categoryId === parseInt(categoryId));
+        if (filteredItems.length === 0) {
+            reject("No published items found for the specified category.");
+            return;
+        }
+        resolve(filteredItems);
+    });
+};
+
 // Get items by minimum date
 module.exports.getItemsByMinDate = (minDateStr) => {
     return new Promise((resolve, reject) => {

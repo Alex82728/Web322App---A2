@@ -13,7 +13,7 @@ Render App URL: https://web322app-a2-1.onrender.com
 
 GitHub Repository URL: https://github.com/azaporojan_seneca/Web-322--app
 
-********************************************************************************/
+********************************************************************************/ 
 
 const express = require('express');
 const path = require('path');
@@ -51,6 +51,10 @@ app.engine('.hbs', exphbs.engine({
             } else {
                 return options.fn(this);
             }
+        },
+        // Add the `eq` helper
+        eq: function (a, b) {
+            return a === b;
         }
     }
 }));
@@ -85,15 +89,47 @@ app.get('/items/add', (req, res) => {
     res.render('addItem', { title: "Add New Item", activeRoute: req.path });
 });
 
-// Shop Route (Display Published Items)
-app.get('/shop', (req, res) => {
-    storeService.getPublishedItems()
-        .then((data) => {
-            res.render('shop', { title: "Shop", items: data, activeRoute: req.path });
-        })
-        .catch((err) => {
-            res.status(500).send("Unable to fetch items.");
-        });
+// Shop Route (Display Published Items, Filtered by Category if Query Present)
+app.get('/shop', async (req, res) => {
+    let viewData = {};
+
+    try {
+        let items = [];
+
+        // If there's a "category" query, filter the returned items by category
+        if (req.query.category) {
+            // Obtain the published "item" by category
+            items = await storeService.getPublishedItemsByCategory(req.query.category);
+        } else {
+            // Obtain the published "items"
+            items = await storeService.getPublishedItems();
+        }
+
+        // Sort the published items by itemDate (newest to oldest)
+        items.sort((a, b) => new Date(b.itemDate) - new Date(a.itemDate));
+
+        // Get the latest item from the front of the list (element 0)
+        let latestItem = items[0];
+
+        // Store the "items" and "latestItem" data in the viewData object (to be passed to the view)
+        viewData.items = items;
+        viewData.latestItem = latestItem;
+    } catch (err) {
+        viewData.message = "No results found.";
+    }
+
+    try {
+        // Obtain the full list of "categories"
+        let categories = await storeService.getCategories();
+
+        // Store the "categories" data in the viewData object (to be passed to the view)
+        viewData.categories = categories;
+    } catch (err) {
+        viewData.categoriesMessage = "No categories available.";
+    }
+
+    // Render the "shop" view with all of the data (viewData)
+    res.render('shop', { data: viewData });
 });
 
 // Items Route (Filtered by Category or Date)
@@ -120,43 +156,64 @@ app.get('/items', (req, res) => {
     }
 });
 
-// Updated Categories Route
+// Categories Route
 app.get('/categories', (req, res) => {
     storeService.getCategories()
         .then((data) => {
-            if (data.length > 0) {
-                res.render('categories', { 
-                    title: "Categories", 
-                    categories: data, 
-                    activeRoute: req.path 
-                });
-            } else {
-                res.render('categories', { 
-                    title: "Categories", 
-                    message: "No categories found", 
-                    activeRoute: req.path 
-                });
-            }
+            res.render('categories', { title: "Categories", categories: data, activeRoute: req.path });
         })
         .catch((err) => {
-            res.render('categories', { 
-                title: "Categories", 
-                message: "Unable to fetch categories", 
-                activeRoute: req.path 
-            });
+            res.render('categories', { title: "Categories", message: "No results", activeRoute: req.path });
         });
 });
 
 // Item Details Route (By ID)
-app.get('/item/:id', (req, res) => {
-    const id = req.params.id;
-    storeService.getItemById(id)
-        .then((item) => {
-            res.render('itemDetails', { title: "Item Details", item, activeRoute: req.path });
-        })
-        .catch((err) => {
-            res.status(404).send("Item not found.");
-        });
+app.get('/shop/:id', async (req, res) => {
+    let viewData = {};
+
+    try {
+        // Declare an empty array to hold "item" objects
+        let items = [];
+
+        // If there's a "category" query, filter the returned items by category
+        if (req.query.category) {
+            // Obtain the published "item" by category
+            items = await storeService.getPublishedItemsByCategory(req.query.category);
+        } else {
+            // Obtain the published "items"
+            items = await storeService.getPublishedItems();
+        }
+
+        // Sort the published items by itemDate (newest to oldest)
+        items.sort((a, b) => new Date(b.itemDate) - new Date(a.itemDate));
+
+        // Store the "items" data in the viewData object
+        viewData.items = items;
+
+    } catch (err) {
+        viewData.message = "no results";
+    }
+
+    try {
+        // Obtain the item by "id"
+        viewData.item = await storeService.getItemById(req.params.id);
+    } catch (err) {
+        viewData.message = "no results"; // Item not found
+    }
+
+    try {
+        // Obtain the full list of "categories"
+        let categories = await storeService.getCategories();
+
+        // Store the "categories" data in the viewData object
+        viewData.categories = categories;
+
+    } catch (err) {
+        viewData.categoriesMessage = "no results"; // Categories not found
+    }
+
+    // Render the "shop" view with all of the data (viewData)
+    res.render("shop", { data: viewData });
 });
 
 // Add Item (POST route with Image Upload)

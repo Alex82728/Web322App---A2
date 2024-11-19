@@ -1,32 +1,8 @@
 [
-    {
-        "id": 1,
-        "name": "Helmets",
-        "description": "Protective helmets for various styles of riding."
-    },
-    {
-        "id": 2,
-        "name": "Jackets",
-        "description": "Durable and stylish jackets designed for bikers."
-    },
-    {
-        "id": 3,
-        "name": "Gloves",
-        "description": "Protective gloves for enhanced grip and safety."
-    },
-    {
-        "id": 4,
-        "name": "Pants",
-        "description": "Motorcycle pants designed for comfort and safety."
-    },
-    {
-        "id": 5,
-        "name": "Boots",
-        "description": "High-quality motorcycle boots for protection and style."
-    },
-    {
-        "id": 6,
-        "name": "Accessories",
-        "description": "Miscellaneous gear and accessories for motorcycle enthusiasts."
-    }
+    { "id": 1, "name": "Helmets" },
+    { "id": 2, "name": "Jackets" },
+    { "id": 3, "name": "Gloves" },
+    { "id": 4, "name": "Boots" },
+    { "id": 5, "name": "Pants" },
+    { "id": 6, "name": "Accessories" }
 ]

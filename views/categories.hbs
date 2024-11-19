@@ -1,17 +1,26 @@
-<!-- views/categories.hbs -->
 <div class="row">
     <div class="col-md-12">
         <h2>Categories</h2>
         <hr />
-        <!-- Display a list of categories -->
-        <ul class="list-group">
-            {{#each categories}}
-                <li class="list-group-item">
-                    <a href="/items?category={{this.id}}">{{this.name}}</a>
-                </li>
-            {{else}}
-                <li class="list-group-item">No categories available.</li>
-            {{/each}}
-        </ul>
+        {{#if categories}}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Category</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each categories}}
+                        <tr>
+                            <td>{{id}}</td>
+                            <td>{{category}}</td>
+                        </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        {{else}}
+            <p>{{message}}</p>
+        {{/if}}
     </div>
 </div>

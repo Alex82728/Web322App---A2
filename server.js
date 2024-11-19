@@ -11,11 +11,9 @@ Date: 2024/10/08
 
 Render App URL: https://web322app-a2-1.onrender.com 
 
-Render App URL: https://web322app-a2-1.onrender.com
-
 GitHub Repository URL: https://github.com/azaporojan_seneca/Web-322--app
 
-********************************************************************************/ 
+********************************************************************************/
 
 const express = require('express');
 const path = require('path');
@@ -29,7 +27,7 @@ const app = express();
 const PORT = 8080;
 
 // Cloudinary Configuration
-cloudinary.config({         
+cloudinary.config({
     cloud_name: 'dwdftakvt',
     api_key: '242931154419331',
     api_secret: 'CJeSPxAcuaHBYV8NpPZSd8aQP4c',
@@ -60,7 +58,8 @@ app.set('view engine', '.hbs');
 
 // Middleware to set active route
 app.use((req, res, next) => {
-    app.locals.activeRoute = req.path;
+    let route = req.path.split('?')[0];  // Exclude query parameters for active route
+    app.locals.activeRoute = route;
     next();
 });
 
@@ -98,7 +97,7 @@ app.get('/shop', (req, res) => {
 });
 
 // Items Route (Filtered by Category or Date)
-const renderItems = (res, title, promise) => {
+const renderItems = (req, res, title, promise) => {
     promise
         .then(data => {
             res.render('items', { title, items: data, activeRoute: req.path });
@@ -113,22 +112,38 @@ app.get('/items', (req, res) => {
     const minDate = req.query.minDate;
 
     if (category) {
-        renderItems(res, "Filtered Items", storeService.getItemsByCategory(category));
+        renderItems(req, res, "Filtered Items", storeService.getItemsByCategory(category));
     } else if (minDate) {
-        renderItems(res, "Filtered Items", storeService.getItemsByMinDate(minDate));
+        renderItems(req, res, "Filtered Items", storeService.getItemsByMinDate(minDate));
     } else {
-        renderItems(res, "All Items", storeService.getAllItems());
+        renderItems(req, res, "All Items", storeService.getAllItems());
     }
 });
 
-// Categories Route
+// Updated Categories Route
 app.get('/categories', (req, res) => {
     storeService.getCategories()
         .then((data) => {
-            res.render('categories', { title: "Categories", categories: data, activeRoute: req.path });
+            if (data.length > 0) {
+                res.render('categories', { 
+                    title: "Categories", 
+                    categories: data, 
+                    activeRoute: req.path 
+                });
+            } else {
+                res.render('categories', { 
+                    title: "Categories", 
+                    message: "No categories found", 
+                    activeRoute: req.path 
+                });
+            }
         })
         .catch((err) => {
-            res.status(500).send("Unable to fetch categories.");
+            res.render('categories', { 
+                title: "Categories", 
+                message: "Unable to fetch categories", 
+                activeRoute: req.path 
+            });
         });
 });
 
@@ -204,6 +219,11 @@ app.delete('/items/:id', (req, res) => {
         .catch(() => {
             res.status(500).send("Unable to delete item.");
         });
+});
+
+// 404 Route for unknown paths
+app.use((req, res) => {
+    res.status(404).render('404', { title: 'Page Not Found', activeRoute: req.path });
 });
 
 // Start the server

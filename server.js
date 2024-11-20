@@ -13,7 +13,7 @@ Render App URL: https://web322app-a2-1.onrender.com
 
 GitHub Repository URL: https://github.com/azaporojan_seneca/Web-322--app
 
-********************************************************************************/ 
+********************************************************************************/
 
 const express = require('express');
 const path = require('path');
@@ -36,7 +36,7 @@ cloudinary.config({
 
 const upload = multer();
 
-// Configure Express to use Handlebars with custom helpers
+// Configure Handlebars
 app.engine('.hbs', exphbs.engine({
     extname: '.hbs',
     helpers: {
@@ -52,7 +52,6 @@ app.engine('.hbs', exphbs.engine({
                 return options.fn(this);
             }
         },
-        // Add the `eq` helper
         eq: function (a, b) {
             return a === b;
         }
@@ -60,23 +59,23 @@ app.engine('.hbs', exphbs.engine({
 }));
 app.set('view engine', '.hbs');
 
-// Middleware to set active route
+// Middleware for Active Routes
 app.use((req, res, next) => {
-    let route = req.path.split('?')[0];  // Exclude query parameters for active route
+    let route = req.path.split('?')[0];
     app.locals.activeRoute = route;
     next();
 });
 
-// Middleware
+// Middleware for Static Files and Parsing
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
 
-// Home Route
+// Redirect Root to Shop
 app.get('/', (req, res) => {
-    res.render('home', { title: "Motorcycle Shop", activeRoute: req.path });
+    res.redirect('/shop');
 });
 
 // About Route
@@ -84,142 +83,40 @@ app.get('/about', (req, res) => {
     res.render('about', { title: "About Us", activeRoute: req.path });
 });
 
-// Add Item Route
+// Add Item Route (GET)
 app.get('/items/add', (req, res) => {
     res.render('addItem', { title: "Add New Item", activeRoute: req.path });
 });
 
-// Shop Route (Display Published Items, Filtered by Category if Query Present)
+// Shop Route
 app.get('/shop', async (req, res) => {
     let viewData = {};
 
     try {
-        let items = [];
+        let items = req.query.category
+            ? await storeService.getPublishedItemsByCategory(req.query.category)
+            : await storeService.getPublishedItems();
 
-        // If there's a "category" query, filter the returned items by category
-        if (req.query.category) {
-            // Obtain the published "item" by category
-            items = await storeService.getPublishedItemsByCategory(req.query.category);
-        } else {
-            // Obtain the published "items"
-            items = await storeService.getPublishedItems();
-        }
+        items.sort((a, b) => new Date(b.postDate) - new Date(a.postDate));
 
-        // Sort the published items by itemDate (newest to oldest)
-        items.sort((a, b) => new Date(b.itemDate) - new Date(a.itemDate));
-
-        // Get the latest item from the front of the list (element 0)
-        let latestItem = items[0];
-
-        // Store the "items" and "latestItem" data in the viewData object (to be passed to the view)
         viewData.items = items;
-        viewData.latestItem = latestItem;
+        viewData.latestItem = items[0];
     } catch (err) {
         viewData.message = "No results found.";
     }
 
     try {
-        // Obtain the full list of "categories"
-        let categories = await storeService.getCategories();
-
-        // Store the "categories" data in the viewData object (to be passed to the view)
-        viewData.categories = categories;
+        viewData.categories = await storeService.getCategories();
     } catch (err) {
         viewData.categoriesMessage = "No categories available.";
     }
 
-    // Render the "shop" view with all of the data (viewData)
     res.render('shop', { data: viewData });
 });
 
-// Items Route (Filtered by Category or Date)
-const renderItems = (req, res, title, promise) => {
-    promise
-        .then(data => {
-            res.render('items', { title, items: data, activeRoute: req.path });
-        })
-        .catch(err => {
-            res.status(500).send(`Unable to fetch items: ${err.message}`);
-        });
-};
-
-app.get('/items', (req, res) => {
-    const category = req.query.category;
-    const minDate = req.query.minDate;
-
-    if (category) {
-        renderItems(req, res, "Filtered Items", storeService.getItemsByCategory(category));
-    } else if (minDate) {
-        renderItems(req, res, "Filtered Items", storeService.getItemsByMinDate(minDate));
-    } else {
-        renderItems(req, res, "All Items", storeService.getAllItems());
-    }
-});
-
-// Categories Route
-app.get('/categories', (req, res) => {
-    storeService.getCategories()
-        .then((data) => {
-            res.render('categories', { title: "Categories", categories: data, activeRoute: req.path });
-        })
-        .catch((err) => {
-            res.render('categories', { title: "Categories", message: "No results", activeRoute: req.path });
-        });
-});
-
-// Item Details Route (By ID)
-app.get('/shop/:id', async (req, res) => {
-    let viewData = {};
-
-    try {
-        // Declare an empty array to hold "item" objects
-        let items = [];
-
-        // If there's a "category" query, filter the returned items by category
-        if (req.query.category) {
-            // Obtain the published "item" by category
-            items = await storeService.getPublishedItemsByCategory(req.query.category);
-        } else {
-            // Obtain the published "items"
-            items = await storeService.getPublishedItems();
-        }
-
-        // Sort the published items by itemDate (newest to oldest)
-        items.sort((a, b) => new Date(b.itemDate) - new Date(a.itemDate));
-
-        // Store the "items" data in the viewData object
-        viewData.items = items;
-
-    } catch (err) {
-        viewData.message = "no results";
-    }
-
-    try {
-        // Obtain the item by "id"
-        viewData.item = await storeService.getItemById(req.params.id);
-    } catch (err) {
-        viewData.message = "no results"; // Item not found
-    }
-
-    try {
-        // Obtain the full list of "categories"
-        let categories = await storeService.getCategories();
-
-        // Store the "categories" data in the viewData object
-        viewData.categories = categories;
-
-    } catch (err) {
-        viewData.categoriesMessage = "no results"; // Categories not found
-    }
-
-    // Render the "shop" view with all of the data (viewData)
-    res.render("shop", { data: viewData });
-});
-
-// Add Item (POST route with Image Upload)
+// Add Item (POST with Image Upload)
 app.post('/items/add', upload.single("featureImage"), (req, res) => {
     if (req.file) {
-        // Validate that the uploaded file is an image
         const fileType = req.file.mimetype.split('/')[0];
         if (fileType !== 'image') {
             return res.status(400).send("Only image files are allowed.");
@@ -243,47 +140,96 @@ app.post('/items/add', upload.single("featureImage"), (req, res) => {
         streamUpload(req)
             .then((result) => {
                 const newItem = {
-                    id: 0,
                     featureImage: result.secure_url,
                     published: req.body.published === 'true',
+                    postDate: new Date().toISOString().split('T')[0],
                     ...req.body
                 };
 
                 storeService.addItem(newItem)
-                    .then(() => {
-                        res.redirect('/shop');
-                    })
-                    .catch(() => {
-                        res.status(500).send("Unable to add item.");
-                    });
+                    .then(() => res.redirect('/shop'))
+                    .catch(() => res.status(500).send("Unable to add item."));
             })
-            .catch(() => {
-                res.status(500).send("Image upload failed.");
-            });
+            .catch(() => res.status(500).send("Image upload failed."));
     } else {
         res.status(400).send("No image file provided.");
     }
 });
 
-// Delete Item
-app.delete('/items/:id', (req, res) => {
-    const itemId = req.params.id;
+// Items Route (All Items or Filtered by Query)
+app.get('/items', (req, res) => {
+    const category = req.query.category;
+    const minDate = req.query.minDate;
 
-    storeService.deleteItem(itemId)
-        .then(() => {
-            res.status(200).json({ message: "Item deleted successfully." });
+    const promise = category
+        ? storeService.getItemsByCategory(category)
+        : minDate
+        ? storeService.getItemsByMinDate(minDate)
+        : storeService.getAllItems();
+
+    promise
+        .then((data) => {
+            res.render('items', { title: "Items", items: data, activeRoute: req.path });
         })
         .catch(() => {
-            res.status(500).send("Unable to delete item.");
+            res.status(500).send("Unable to fetch items.");
         });
 });
 
-// 404 Route for unknown paths
+// Categories Route
+app.get('/categories', (req, res) => {
+    storeService.getCategories()
+        .then((data) => {
+            res.render('categories', { title: "Categories", categories: data, activeRoute: req.path });
+        })
+        .catch(() => {
+            res.render('categories', { title: "Categories", message: "No results", activeRoute: req.path });
+        });
+});
+
+// Item Details Route
+app.get('/shop/:id', async (req, res) => {
+    let viewData = {};
+
+    try {
+        let items = req.query.category
+            ? await storeService.getPublishedItemsByCategory(req.query.category)
+            : await storeService.getPublishedItems();
+
+        items.sort((a, b) => new Date(b.postDate) - new Date(a.postDate));
+        viewData.items = items;
+    } catch (err) {
+        viewData.message = "No results found.";
+    }
+
+    try {
+        viewData.item = await storeService.getItemById(req.params.id);
+    } catch (err) {
+        viewData.message = "Item not found.";
+    }
+
+    try {
+        viewData.categories = await storeService.getCategories();
+    } catch (err) {
+        viewData.categoriesMessage = "No categories available.";
+    }
+
+    res.render('shop', { data: viewData });
+});
+
+// Delete Item
+app.delete('/items/:id', (req, res) => {
+    storeService.deleteItem(req.params.id)
+        .then(() => res.status(200).json({ message: "Item deleted successfully." }))
+        .catch(() => res.status(500).send("Unable to delete item."));
+});
+
+// 404 Route
 app.use((req, res) => {
     res.status(404).render('404', { title: 'Page Not Found', activeRoute: req.path });
 });
 
-// Start the server
+// Initialize Service and Start Server
 storeService.initialize()
     .then(() => {
         app.listen(PORT, () => {

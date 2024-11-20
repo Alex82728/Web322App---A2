@@ -181,6 +181,9 @@ module.exports.addItem = (itemData) => {
         itemData.published = itemData.published ? true : false;
         itemData.id = items.length ? Math.max(...items.map(item => item.id)) + 1 : 1;
 
+        // Automatically set the postDate if it's not provided
+        itemData.postDate = itemData.postDate || new Date().toISOString().split('T')[0];
+
         items.push(itemData);
 
         fs.writeFile(path.join(__dirname, 'data', 'items.json'), JSON.stringify(items, null, 2), (err) => {

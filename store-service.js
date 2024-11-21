@@ -16,6 +16,7 @@ let categories = [];
 // Initialize the store service
 module.exports.initialize = () => {
     return new Promise((resolve, reject) => {
+        // Load items from items.json
         fs.readFile(path.join(__dirname, 'data', 'items.json'), 'utf8', (err, data) => {
             if (err) {
                 reject("Unable to read items file");
@@ -24,6 +25,7 @@ module.exports.initialize = () => {
 
             items = JSON.parse(data);
 
+            // Load categories from categories.json
             fs.readFile(path.join(__dirname, 'data', 'categories.json'), 'utf8', (err, data) => {
                 if (err) {
                     reject("Unable to read categories file");
@@ -59,6 +61,8 @@ module.exports.addItem = (itemData, file) => {
         // Handle feature image upload if provided
         if (file && file.featureImage) {
             const featureImagePath = file.featureImage.tempFilePath;
+
+            // Upload image to Cloudinary
             cloudinary.uploader.upload(featureImagePath, { folder: 'motorcycle_gear' }, (error, result) => {
                 if (error) {
                     reject("Error uploading feature image.");
@@ -175,5 +179,33 @@ module.exports.getItemById = (id) => {
             return;
         }
         resolve(item);
+    });
+};
+
+// Get items by category
+module.exports.getItemsByCategory = (categoryName) => {
+    return new Promise((resolve, reject) => {
+        const filteredItems = items.filter(item => item.category && item.category.toLowerCase() === categoryName.toLowerCase());
+
+        if (filteredItems.length === 0) {
+            reject("No items found for this category");
+            return;
+        }
+
+        resolve(filteredItems);
+    });
+};
+
+// Get items by minimum date
+module.exports.getItemsByMinDate = (minDate) => {
+    return new Promise((resolve, reject) => {
+        const filteredItems = items.filter(item => new Date(item.postDate) >= new Date(minDate));
+
+        if (filteredItems.length === 0) {
+            reject("No items found after this date");
+            return;
+        }
+
+        resolve(filteredItems);
     });
 };

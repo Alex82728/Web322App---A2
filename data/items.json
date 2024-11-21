@@ -253,70 +253,72 @@
     "id": 26,
     "name": "Adventure Touring Pants",
     "categoryId": 4,
-    "price": 169.99,
-    "description": "Pants designed for long-distance adventure touring.",
+    "price": 179.99,
+    "description": "Rugged pants for off-road and adventure riding.",
     "published": true,
     "postDate": "2024-10-26",
     "title": "Adventure Touring Pants"
   },
   {
     "id": 27,
-    "name": "Heated Jacket Liner",
-    "categoryId": 2,
-    "price": 159.99,
-    "description": "Electric liner to keep you warm in the cold weather.",
-    "published": false,
+    "name": "Motorcycle Phone Mount",
+    "categoryId": 6,
+    "price": 39.99,
+    "description": "Mount for attaching your phone to the motorcycle.",
+    "published": true,
     "postDate": "2024-10-25",
-    "title": "Heated Jacket Liner"
+    "title": "Motorcycle Phone Mount"
   },
   {
     "id": 28,
-    "name": "Motorcycle Knee Guards",
-    "categoryId": 4,
-    "price": 59.99,
-    "description": "Protective knee guards for motorcycle riders.",
+    "name": "Neck Warmer",
+    "categoryId": 6,
+    "price": 19.99,
+    "description": "Warm neck gaiter for winter rides.",
     "published": true,
     "postDate": "2024-10-24",
-    "title": "Motorcycle Knee Guards"
+    "title": "Neck Warmer"
   },
   {
     "id": 29,
-    "name": "Neck Gaiter",
-    "categoryId": 3,
-    "price": 19.99,
-    "description": "Warm neck gaiter for cold weather riding.",
+    "name": "Motorcycle Cleaning Kit",
+    "categoryId": 6,
+    "price": 49.99,
+    "description": "Cleaning kit for keeping your motorcycle pristine.",
     "published": true,
     "postDate": "2024-10-23",
-    "title": "Neck Gaiter"
+    "title": "Motorcycle Cleaning Kit"
   },
   {
     "id": 30,
-    "name": "Motorcycle Saddlebag Mounts",
+    "name": "Crash Bars",
     "categoryId": 6,
-    "price": 99.99,
-    "description": "Mounting system for saddlebags.",
-    "published": true,
+    "price": 149.99,
+    "description": "Protective bars to prevent damage during a fall.",
+    "published": false,
     "postDate": "2024-10-22",
-    "title": "Motorcycle Saddlebag Mounts"
+    "title": "Crash Bars"
   },
   {
     "id": 31,
-    "name": "Tire Repair Kit",
-    "categoryId": 6,
-    "price": 29.99,
-    "description": "Complete tire repair kit for motorcycles.",
+    "name": "Gloves",
+    "categoryId": 3,
+    "price": 100,
+    "description": "Gloves",
     "published": true,
+    "featureImage": "http://res.cloudinary.com/dwdftakvt/image/upload/v1730767040/opss6t8e4edzhamo6rsp.jpg",
     "postDate": "2024-10-21",
-    "title": "Tire Repair Kit"
+    "title": "Gloves"
   },
   {
     "id": 32,
-    "name": "Motorcycle Oil",
-    "categoryId": 6,
-    "price": 24.99,
-    "description": "High-performance motorcycle engine oil.",
+    "name": "Full Face Helmet",
+    "categoryId": 1,
+    "price": 2000,
+    "description": "Racing helmet",
     "published": true,
+    "featureImage": "https://res.cloudinary.com/dwdftakvt/image/upload/v1730767496/hyp7tkqligt8hw3mmxuu.png",
     "postDate": "2024-10-20",
-    "title": "Motorcycle Oil"
+    "title": "Full Face Helmet"
   }
 ]

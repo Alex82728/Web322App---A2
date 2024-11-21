@@ -1,24 +1,38 @@
-<div class="container mt-5">
-    <h1>Categories</h1>
-    <hr />
-    {{#if categories.length}}
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Category</th>
-                </tr>
-            </thead>
-            <tbody>
-                {{#each categories}}
-                    <tr>
-                        <td>{{id}}</td>
-                        <td>{{category}}</td>
-                    </tr>
-                {{/each}}
-            </tbody>
-        </table>
-    {{else}}
-        <p>No categories available.</p>
-    {{/if}}
+{{!-- categories.hbs --}}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="text-center">{{title}}</h1>
+            {{!-- Conditionally display the message if there are no categories --}}
+            {{#unless categories}}
+                <div class="col-md-12 text-center">
+                    <strong>{{message}}</strong>
+                </div>
+            {{/unless}}
+
+            {{!-- Table for categories --}}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Category ID</th>
+                            <th>Category Name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each categories}}
+                            <tr>
+                                <td>
+                                    <a href="/items?category={{this.id}}">{{this.id}}</a>
+                                </td>
+                                <td>
+                                    <a href="/items?category={{this.id}}">{{this.categoryName}}</a>
+                                </td>
+                            </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>

@@ -11,11 +11,9 @@ Date: 2024/10/08
 
 Render App URL: https://web322app-a2-1.onrender.com 
 
-Render App URL: https://web322app-a2-1.onrender.com
-
 GitHub Repository URL: https://github.com/azaporojan_seneca/Web-322--app
 
-********************************************************************************/ 
+********************************************************************************/
 
 const express = require('express');
 const path = require('path');

@@ -41,50 +41,51 @@ nav a:hover {
     color: #f1c40f;
 }
 
-/* Main Content Area */
-main {
+/* Shop Content */
+.shop-content {
+    display: flex;
+    justify-content: space-between;
     padding: 20px;
-    background-color: #ecf0f1;
-    border-radius: 5px;
-    max-width: 960px;
-    margin: 20px auto;
+    max-width: 1200px;
+    margin: 0 auto;
+    flex-wrap: wrap;
 }
 
-section {
-    margin-bottom: 30px;
+/* Item Details */
+.item-details {
+    flex: 1 1 60%; /* Takes 60% of available space */
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    margin-right: 20px;
 }
 
-/* Table Styling */
-.table-responsive {
-    margin-top: 20px;
+.item-details p {
+    margin: 10px 0;
 }
 
-.table {
-    width: 100%;
-    margin-bottom: 1rem;
-    color: #333;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+/* Items List */
+.items-list {
+    flex: 1 1 35%; /* Takes 35% of available space */
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
 }
 
-.table th, .table td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
+.items-list h3 {
+    font-size: 22px;
+    margin-bottom: 10px;
 }
 
-.table th {
-    background-color: #2980b9;
-    color: #fff;
+.items-list ul {
+    list-style-type: none;
+    padding: 0;
 }
 
-.table td a {
-    color: #3498db;
-    text-decoration: none;
-}
-
-.table td a:hover {
-    color: #e74c3c;
+.items-list ul li {
+    margin-bottom: 10px;
 }
 
 /* Footer Styling */
@@ -95,45 +96,4 @@ footer {
     padding: 10px 0;
     font-size: 14px;
     margin-top: 30px;
-}
-
-/* Buttons and Links */
-button {
-    background-color: #e74c3c;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-button:hover {
-    background-color: #c0392b;
-}
-
-a {
-    color: #3498db;
-    text-decoration: none;
-    transition: color 0.3s ease;
-}
-
-a:hover {
-    color: #e74c3c;
-}
-
-/* 404 Page Styling */
-.page-404 {
-    text-align: center;
-    padding: 100px 20px;
-    color: #e74c3c;
-}
-
-.page-404 h1 {
-    font-size: 72px;
-    margin-bottom: 20px;
-}
-
-.page-404 p {
-    font-size: 24px;
 }

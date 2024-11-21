@@ -19,31 +19,41 @@
         <!-- Categories Dropdown -->
         <h2>Categories</h2>
         <ul>
-            {{#each categories}}
-                <li><a href="/shop?category={{this}}">{{this}}</a></li>
+            {{#each data.categories}}
+                <li><a href="/shop?category={{this.name}}">{{this.name}}</a></li>
             {{/each}}
         </ul>
 
         <!-- Items Display -->
         <h2>Items</h2>
-        {{#if items}}
+        {{#if data.items.length}}
             <ul>
-                {{#each items}}
-                    <li>
-                        <a href="/item/{{this.id}}">
-                            <img src="{{this.featureImage}}" alt="{{this.name}}" />
-                            <p>{{this.name}}</p>
-                            <p>${{this.price}}</p>
-                        </a>
-                    </li>
+                {{#each data.items}}
+                    {{#if this.published}}
+                        <li>
+                            <a href="/item/{{this.id}}">
+                                {{#if this.featureImage}}
+                                    <img src="{{this.featureImage}}" alt="{{this.name}}" style="width: 100px; height: auto;" />
+                                {{else}}
+                                    <img src="default-image.jpg" alt="{{this.name}}" style="width: 100px; height: auto;" />
+                                {{/if}}
+                                <p>{{this.name}}</p>
+                                <p>${{this.price}}</p>
+                            </a>
+                        </li>
+                    {{/if}}
                 {{/each}}
             </ul>
         {{else}}
             <p>No items available.</p>
         {{/if}}
 
-        {{#if message}}
-            <p>{{message}}</p>
+        {{#if data.message}}
+            <p>{{data.message}}</p>
+        {{/if}}
+
+        {{#if data.categoriesMessage}}
+            <p>{{data.categoriesMessage}}</p>
         {{/if}}
     </main>
 

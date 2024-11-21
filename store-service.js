@@ -59,11 +59,11 @@ module.exports.addItem = (itemData, file) => {
         itemData.published = itemData.published ? true : false;
 
         // Handle feature image upload if provided
-        if (file && file.featureImage) {
-            const featureImagePath = file.featureImage.tempFilePath;
+        if (file && file.buffer) {
+            const featureImageBuffer = file.buffer;
 
             // Upload image to Cloudinary
-            cloudinary.uploader.upload(featureImagePath, { folder: 'motorcycle_gear' }, (error, result) => {
+            cloudinary.uploader.upload_stream({ folder: 'motorcycle_gear' }, (error, result) => {
                 if (error) {
                     reject("Error uploading feature image.");
                     return;
@@ -75,7 +75,7 @@ module.exports.addItem = (itemData, file) => {
                 itemData.id = items.length ? Math.max(...items.map(item => item.id)) + 1 : 1;
 
                 // Auto set the postDate if it's not provided
-                itemData.postDate = itemData.postDate || new Date().toISOString().split('T')[0];
+                itemData.postDate = itemData.postDate || new Date().toISOString();
 
                 items.push(itemData);
 
@@ -87,7 +87,7 @@ module.exports.addItem = (itemData, file) => {
                     }
                     resolve(itemData);
                 });
-            });
+            }).end(featureImageBuffer); // Send the image buffer to Cloudinary
         } else {
             reject("No feature image uploaded");
         }

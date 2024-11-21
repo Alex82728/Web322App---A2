@@ -220,6 +220,7 @@ app.post('/items/add', upload.single("featureImage"), (req, res) => {
                     id: 0,
                     featureImage: result.secure_url,
                     published: req.body.published === 'true',
+                    postDate: new Date(), // Add this line to set the post date
                     ...req.body
                 };
 

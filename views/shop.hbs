@@ -1,20 +1,19 @@
-{{!-- Shop Page --}}
 {{> header title="Shop" }}
 
 <div class="container">
     <h1>Shop</h1>
 
-    {{#if data.categories}}
+    {{#if data.categories.length}}
     <ul class="categories">
         {{#each data.categories}}
         <li><a href="/shop?category={{this.category}}">{{this.category}}</a></li>
         {{/each}}
     </ul>
     {{else}}
-    <p>No categories available.</p>
+        <p>No categories available.</p>
     {{/if}}
 
-    {{#if data.items}}
+    {{#if data.items.length}}
     <div class="items">
         {{#each data.items}}
         <div class="item">
@@ -26,7 +25,7 @@
         {{/each}}
     </div>
     {{else}}
-    <p>{{data.message}}</p>
+        <p>{{data.message}}</p>
     {{/if}}
 </div>
 

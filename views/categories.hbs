@@ -1,7 +1,7 @@
 <div class="container mt-5">
     <h1>Categories</h1>
     <hr />
-    {{#if categories}}
+    {{#if categories.length}}
         <table class="table table-striped">
             <thead>
                 <tr>
@@ -19,6 +19,6 @@
             </tbody>
         </table>
     {{else}}
-        <p class="text-muted">{{message}}</p>
+        <p>No categories available.</p>
     {{/if}}
 </div>

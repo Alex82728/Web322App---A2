@@ -104,6 +104,10 @@ app.get('/shop', async (req, res) => {
             items = await storeService.getPublishedItems();
         }
 
+        if (items.length === 0) {
+            viewData.message = "No items found.";
+        }
+
         // Sort the published items by itemDate (newest to oldest)
         items.sort((a, b) => new Date(b.itemDate) - new Date(a.itemDate));
 
@@ -111,7 +115,7 @@ app.get('/shop', async (req, res) => {
         viewData.items = items;
         viewData.latestItem = latestItem;
     } catch (err) {
-        viewData.message = "No results found.";
+        viewData.message = "Error fetching items.";
     }
 
     try {
@@ -128,13 +132,23 @@ app.get('/shop', async (req, res) => {
 const renderItems = (req, res, title, promise) => {
     promise
         .then(data => {
-            // Ensure that the items array contains title, category, and itemDate
-            res.render('items', { 
-                title, 
-                items: data, 
-                activeRoute: req.path,
-                currentYear: new Date().getFullYear()  // Pass the current year
-            });
+            if (data.length === 0) {
+                // Pass a message if no items are found
+                res.render('items', { 
+                    title, 
+                    message: 'No items found.',
+                    items: data, 
+                    activeRoute: req.path,
+                    currentYear: new Date().getFullYear()
+                });
+            } else {
+                res.render('items', { 
+                    title, 
+                    items: data, 
+                    activeRoute: req.path,
+                    currentYear: new Date().getFullYear()
+                });
+            }
         })
         .catch(err => {
             res.status(500).send(`Unable to fetch items: ${err.message}`);

@@ -3,42 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{title}}</title> <!-- Dynamic title -->
+    <title>{{title}}</title>
     <link rel="stylesheet" href="/css/main.css">
 </head>
 <body>
-    <h1>Categories</h1>
+    <h1>{{title}}</h1>
     
-    <p>Here are the available categories in our Motorcycle Gear Shop:</p>
+    <p>Our mission is to provide top-notch gear that ensures both safety and style for motorcycle enthusiasts. Whether you're a seasoned rider or just starting your journey, we have the perfect products to meet your needs. Our collection includes high-quality helmets, jackets, gloves, pants, boots along with accessories, all designed with the rider's safety and comfort in mind.</p>
     
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Category</th>
-            </tr>
-        </thead>
-        <tbody>
-            {{#each categories}}
-            <tr>
-                <td>{{this.id}}</td>
-                <td>{{this.name}}</td> <!-- Assuming the category has 'id' and 'name' -->
-            </tr>
-            {{/each}}
-        </tbody>
-    </table>
+    <p>Explore our range of products and discover the best in motorcycle gear. We are dedicated to delivering excellent customer service and ensuring that every rider finds exactly what they need.</p>
 
     <nav>
         <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="/shop">Shop</a></li>
-            <li><a href="/items">Items</a></li>
             <li><a href="/about">About</a></li>
+            <li><a href="/items">Items</a></li>
             <li><a href="/items/add">Add Item</a></li>
-            <li><a href="/categories">Categories</a></li> <!-- Link to Categories page -->
+            <li><a href="/shop">Shop</a></li>
         </ul>
     </nav>
-
+    
     <footer>
         <p>&copy; 2024 Alexandru Zaporojan. All rights reserved.</p>
     </footer>

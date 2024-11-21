@@ -1,11 +1,58 @@
-<div class="row">
-    <div class="col-md-6">
-        <h1>About Us</h1>
-        <p>Hello! I’m Alexandru Zaporojan, the creator of this Motorcycle Gear Shop. As a passionate web developer and motorcycle enthusiast, I've designed this site to showcase a carefully curated collection of gear that caters to riders of all levels. My goal is to provide you with the best equipment that combines safety, comfort, and style.</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>{{title}}</title> <!-- Dynamically set the title -->
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">WEB322 - Alexandru Zaporojan</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link{{#if (eq activeRoute '/shop')}} active{{/if}}" href="/shop">Shop</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link{{#if (eq activeRoute '/')}} active{{/if}}" href="/">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link{{#if (eq activeRoute '/items')}} active{{/if}}" href="/items">Items</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/about">About</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link{{#if (eq activeRoute '/items/add')}} active{{/if}}" href="/items/add">Add Item</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-6">
+                <h2>About Us</h2>
+                <p>Hello! I’m Alexandru Zaporojan, the creator of this Motorcycle Gear Shop. As a passionate web developer and motorcycle enthusiast, I've designed this site to showcase a carefully curated collection of gear that caters to riders of all levels. My goal is to provide you with the best equipment that combines safety, comfort, and style.</p>
+            </div>
+            <div class="col-md-6">
+                <h2>Our Mission</h2>
+                <p>At our shop, we believe that every rider deserves quality gear that not only looks great but also enhances their safety on the road. Our mission is to offer high-quality products and excellent customer service, ensuring that your experience is as enjoyable as the ride itself. Explore our latest collections and feel free to reach out for any questions or custom requests!</p>
+            </div>
+        </div>
     </div>
-    <div class="col-md-6">
-        <h2>Our Mission</h2>
-        <p>At our shop, we believe that every rider deserves quality gear that not only looks great but also enhances their safety on the road. Our mission is to offer high-quality products and excellent customer service, ensuring that your experience is as enjoyable as the ride itself. Explore our latest collections and feel free to reach out for any questions or custom requests!</p>
-        <img src="/images/about.jpg" alt="About Us" class="img-fluid">
-    </div>
-</div>
+    
+    <footer class="text-center">
+        <p>&copy; 2024 Alexandru Zaporojan</p>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

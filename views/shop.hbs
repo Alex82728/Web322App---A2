@@ -5,7 +5,7 @@
         <h2>{{data.post.title}}</h2>
         <img src="{{data.post.featureImage}}" alt="Feature Image" style="width:100%" />
         <br /><br />
-        <div>{{#safeHTML data.post.body}}</div>
+        <div>{{#safeHTML}}{{data.post.body}}{{/safeHTML}}</div>
         <br /><br />
         <strong>Price:</strong> ${{data.post.price}}<br />
         <strong>Category:</strong> {{data.post.category}}<br />

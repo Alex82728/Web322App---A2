@@ -54,6 +54,10 @@ app.engine('.hbs', exphbs.engine({
         },
         eq: function (a, b) {
             return a === b;
+        },
+        // Custom helper to allow raw HTML rendering
+        safeHTML: function(options) {
+            return new exphbs.SafeString(options.fn(this));  // This allows raw HTML
         }
     }
 }));

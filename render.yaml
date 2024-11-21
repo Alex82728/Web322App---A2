@@ -2,10 +2,14 @@ version: 1
 services:
   - type: web
     name: my-web-service
-    env: node      
-    plan: free     
-    branch: main 
-    buildCommand: npm install  
-    startCommand: npm start     
+    env: node
+    plan: free
+    branch: main
+    buildCommand: npm install
+    startCommand: npm start
     envVars:
       NODE_ENV: production
+      DATABASE_URL: your_database_url  
+      CLOUDINARY_API_KEY: 242931154419331  
+      CLOUDINARY_API_SECRET: CJeSPxAcuaHBYV8NpPZSd8aQP4c  
+      CLOUDINARY_CLOUD_NAME: dwdftakvt  

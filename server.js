@@ -179,7 +179,7 @@ app.get('/categories', (req, res) => {
 });
 
 // Item Details Route (By ID)
-app.get('/item/:id', (req, res) => {
+app.get('/shop/:id', (req, res) => {
     const id = req.params.id;
     storeService.getItemById(id)
         .then((item) => {

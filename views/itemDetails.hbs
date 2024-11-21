@@ -1,34 +1,33 @@
-<!-- views/itemDetails.hbs -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{title}}</title>
+    <title>{{item.name}} - Item Details</title>
+    <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
     <header>
-        <h1>{{title}}</h1>
+        <h1>Item Details</h1>
         <nav>
-            <a href="/">Home</a> | 
-            <a href="/shop">Shop</a>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/shop">Shop</a></li>
+            </ul>
         </nav>
     </header>
 
-    <main>
-        {{#if item}}
-            <h2>{{item.name}}</h2>
-            <img src="{{item.featureImage}}" alt="{{item.name}}" />
-            <p>{{item.description}}</p>
-            <p>Price: ${{item.price}}</p>
-            <p>Category: {{item.category}}</p>
-        {{else}}
-            <p>Item not found.</p>
-        {{/if}}
-    </main>
+    <div class="item-details">
+        <h2>{{item.name}}</h2>
+        <img src="{{item.featureImage}}" alt="{{item.name}} image" class="item-image">
+        <p><strong>Description:</strong> {{item.description}}</p>
+        <p><strong>Price:</strong> ${{item.price}}</p>
+        <p><strong>Category:</strong> {{category}}</p> <!-- Display category -->
+        <p><strong>Post Date:</strong> {{item.postDate}}</p>
+    </div>
 
     <footer>
-        <p>&copy; {{currentYear}}</p>
+        <p>&copy; 2024 Motorcycle Shop. All rights reserved.</p>
     </footer>
 </body>
 </html>

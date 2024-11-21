@@ -182,8 +182,19 @@ app.get('/categories', (req, res) => {
 app.get('/shop/:id', (req, res) => {
     const id = req.params.id;
     storeService.getItemById(id)
-        .then((item) => {
-            res.render('itemDetails', { title: "Item Details", item, activeRoute: req.path });
+        .then(async (item) => {
+            try {
+                // Fetch the category associated with the item
+                const category = await storeService.getCategoryById(item.categoryId);
+                res.render('itemDetails', { 
+                    title: "Item Details", 
+                    item, 
+                    category: category.name, // Pass the category name to the template
+                    activeRoute: req.path 
+                });
+            } catch (err) {
+                res.status(500).send("Error fetching category.");
+            }
         })
         .catch((err) => {
             res.status(404).send("Item not found.");

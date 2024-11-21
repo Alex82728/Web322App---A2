@@ -209,3 +209,29 @@ module.exports.getItemsByMinDate = (minDate) => {
         resolve(filteredItems);
     });
 };
+
+// Get an item by ID with category name
+module.exports.getItemById = (id) => {
+    return new Promise((resolve, reject) => {
+        const item = items.find(item => item.id === parseInt(id));
+        if (!item) {
+            reject("Item not found");
+            return;
+        }
+
+        // Retrieve the category name using the categoryId in the item
+        if (item.category) {
+            module.exports.getCategoryById(item.category)
+                .then(category => {
+                    // Add category name to the item
+                    item.categoryName = category.name;
+                    resolve(item);
+                })
+                .catch(error => {
+                    reject("Category not found for this item");
+                });
+        } else {
+            resolve(item); // No category, return the item as is
+        }
+    });
+};

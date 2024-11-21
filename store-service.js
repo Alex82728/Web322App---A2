@@ -50,6 +50,46 @@ function deleteImage(publicId) {
     });
 }
 
+// Add a new item
+module.exports.addItem = (itemData, file) => {
+    return new Promise((resolve, reject) => {
+        // Check if published flag is set correctly
+        itemData.published = itemData.published ? true : false;
+
+        // Handle feature image upload if provided
+        if (file && file.featureImage) {
+            const featureImagePath = file.featureImage.tempFilePath;
+            cloudinary.uploader.upload(featureImagePath, { folder: 'motorcycle_gear' }, (error, result) => {
+                if (error) {
+                    reject("Error uploading feature image.");
+                    return;
+                }
+
+                itemData.featureImage = result.secure_url; // Store Cloudinary URL for the image
+
+                // Generate unique item ID
+                itemData.id = items.length ? Math.max(...items.map(item => item.id)) + 1 : 1;
+
+                // Auto set the postDate if it's not provided
+                itemData.postDate = itemData.postDate || new Date().toISOString().split('T')[0];
+
+                items.push(itemData);
+
+                // Save the new item in items.json
+                fs.writeFile(path.join(__dirname, 'data', 'items.json'), JSON.stringify(items, null, 2), (err) => {
+                    if (err) {
+                        reject("Unable to save item. Please check server logs.");
+                        return;
+                    }
+                    resolve(itemData);
+                });
+            });
+        } else {
+            reject("No feature image uploaded");
+        }
+    });
+};
+
 // Function to delete an item
 module.exports.deleteItem = (itemId) => {
     return new Promise((resolve, reject) => {
@@ -61,9 +101,10 @@ module.exports.deleteItem = (itemId) => {
             if (item.featureImage) {
                 const publicId = item.featureImage.split('/').pop().split('.')[0];
 
+                // Delete image from Cloudinary
                 deleteImage(publicId)
                     .then(() => {
-                        items.splice(itemIndex, 1);
+                        items.splice(itemIndex, 1); // Remove item from local storage
                         fs.writeFile(path.join(__dirname, 'data', 'items.json'), JSON.stringify(items, null, 2), (err) => {
                             if (err) {
                                 reject("Unable to delete item. Please check server logs.");
@@ -76,7 +117,7 @@ module.exports.deleteItem = (itemId) => {
                         reject("Failed to delete image from Cloudinary.");
                     });
             } else {
-                items.splice(itemIndex, 1);
+                items.splice(itemIndex, 1); // No image to delete
                 fs.writeFile(path.join(__dirname, 'data', 'items.json'), JSON.stringify(items, null, 2), (err) => {
                     if (err) {
                         reject("Unable to delete item. Please check server logs.");
@@ -125,44 +166,6 @@ module.exports.getCategories = () => {
     });
 };
 
-// Get items by category
-module.exports.getItemsByCategory = (categoryId) => {
-    return new Promise((resolve, reject) => {
-        let filteredItems = items.filter(item => item.categoryId === parseInt(categoryId));
-        if (filteredItems.length === 0) {
-            reject("No results returned for the specified category.");
-            return;
-        }
-        resolve(filteredItems);
-    });
-};
-
-// Get published items by category
-module.exports.getPublishedItemsByCategory = (categoryId) => {
-    return new Promise((resolve, reject) => {
-        let filteredItems = items.filter(item => item.published && item.categoryId === parseInt(categoryId));
-        if (filteredItems.length === 0) {
-            reject("No published items found for the specified category.");
-            return;
-        }
-        resolve(filteredItems);
-    });
-};
-
-// Get items by minimum date
-module.exports.getItemsByMinDate = (minDateStr) => {
-    return new Promise((resolve, reject) => {
-        const minDate = new Date(minDateStr);
-        let filteredItems = items.filter(item => new Date(item.postDate) >= minDate);
-        
-        if (filteredItems.length === 0) {
-            reject("No items found from the given date.");
-            return;
-        }
-        resolve(filteredItems);
-    });
-};
-
 // Get an item by ID
 module.exports.getItemById = (id) => {
     return new Promise((resolve, reject) => {
@@ -172,26 +175,5 @@ module.exports.getItemById = (id) => {
             return;
         }
         resolve(item);
-    });
-};
-
-// Add a new item
-module.exports.addItem = (itemData) => {
-    return new Promise((resolve, reject) => {
-        itemData.published = itemData.published ? true : false;
-        itemData.id = items.length ? Math.max(...items.map(item => item.id)) + 1 : 1;
-
-        // Automatically set the postDate if it's not provided
-        itemData.postDate = itemData.postDate || new Date().toISOString().split('T')[0];
-
-        items.push(itemData);
-
-        fs.writeFile(path.join(__dirname, 'data', 'items.json'), JSON.stringify(items, null, 2), (err) => {
-            if (err) {
-                reject("Unable to save item. Please check server logs.");
-                return;
-            }
-            resolve(itemData);
-        });
     });
 };

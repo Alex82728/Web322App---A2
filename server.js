@@ -88,7 +88,7 @@ app.get('/items/add', (req, res) => {
     res.render('addItem', { title: "Add New Item", activeRoute: req.path });
 });
 
-// Shop Route
+// Shop Route (List of Items, Filtered by Category)
 app.get('/shop', async (req, res) => {
     let viewData = {};
 
@@ -156,54 +156,13 @@ app.post('/items/add', upload.single("featureImage"), (req, res) => {
     }
 });
 
-// Items Route (All Items or Filtered by Query)
-app.get('/items', (req, res) => {
-    const category = req.query.category;
-    const minDate = req.query.minDate;
-
-    const promise = category
-        ? storeService.getItemsByCategory(category)
-        : minDate
-        ? storeService.getItemsByMinDate(minDate)
-        : storeService.getAllItems();
-
-    promise
-        .then((data) => {
-            res.render('items', { title: "Items", items: data, activeRoute: req.path });
-        })
-        .catch(() => {
-            res.status(500).send("Unable to fetch items.");
-        });
-});
-
-// Categories Route
-app.get('/categories', (req, res) => {
-    storeService.getCategories()
-        .then((data) => {
-            res.render('categories', { title: "Categories", categories: data, activeRoute: req.path });
-        })
-        .catch(() => {
-            res.render('categories', { title: "Categories", message: "No results", activeRoute: req.path });
-        });
-});
-
-// Item Details Route
+// Shop Item Details Route (By ID)
 app.get('/shop/:id', async (req, res) => {
     let viewData = {};
 
     try {
-        let items = req.query.category
-            ? await storeService.getPublishedItemsByCategory(req.query.category)
-            : await storeService.getPublishedItems();
-
-        items.sort((a, b) => new Date(b.postDate) - new Date(a.postDate));
-        viewData.items = items;
-    } catch (err) {
-        viewData.message = "No results found.";
-    }
-
-    try {
-        viewData.item = await storeService.getItemById(req.params.id);
+        let item = await storeService.getItemById(req.params.id);
+        viewData.item = item;
     } catch (err) {
         viewData.message = "Item not found.";
     }

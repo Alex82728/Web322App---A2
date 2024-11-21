@@ -77,29 +77,26 @@ app.use(express.urlencoded({ extended: true }));
 
 // Home Route
 app.get('/', (req, res) => {
-    const currentYear = new Date().getFullYear(); // Get the current year
-    res.render('home', { title: "Motorcycle Shop", activeRoute: req.path, currentYear });
+    res.render('home', { title: "Motorcycle Shop", activeRoute: req.path });
 });
 
 // About Route
 app.get('/about', (req, res) => {
-    const currentYear = new Date().getFullYear(); // Get the current year
-    res.render('about', { title: "About Us", activeRoute: req.path, currentYear });
+    res.render('about', { title: "About Us", activeRoute: req.path });
 });
 
 // Add Item Route
 app.get('/items/add', (req, res) => {
-    const currentYear = new Date().getFullYear(); // Get the current year
-    res.render('addItem', { title: "Add New Item", activeRoute: req.path, currentYear });
+    res.render('addItem', { title: "Add New Item", activeRoute: req.path });
 });
 
 // Shop Route (Display Published Items, Filtered by Category if Query Present)
 app.get('/shop', async (req, res) => {
     let viewData = {};
-    const currentYear = new Date().getFullYear(); // Get the current year
 
     try {
         let items = [];
+
         // If there's a "category" query, filter the returned items by category
         if (req.query.category) {
             items = await storeService.getPublishedItemsByCategory(req.query.category);
@@ -124,15 +121,20 @@ app.get('/shop', async (req, res) => {
         viewData.categoriesMessage = "No categories available.";
     }
 
-    res.render('shop', { data: viewData, currentYear });
+    res.render('shop', { data: viewData });
 });
 
 // Items Route (Filtered by Category or Date)
 const renderItems = (req, res, title, promise) => {
-    const currentYear = new Date().getFullYear(); // Get the current year
     promise
         .then(data => {
-            res.render('items', { title, items: data, activeRoute: req.path, currentYear });
+            // Ensure that the items array contains title, category, and itemDate
+            res.render('items', { 
+                title, 
+                items: data, 
+                activeRoute: req.path,
+                currentYear: new Date().getFullYear()  // Pass the current year
+            });
         })
         .catch(err => {
             res.status(500).send(`Unable to fetch items: ${err.message}`);
@@ -142,7 +144,6 @@ const renderItems = (req, res, title, promise) => {
 app.get('/items', (req, res) => {
     const category = req.query.category;
     const minDate = req.query.minDate;
-    const currentYear = new Date().getFullYear(); // Get the current year
 
     if (category) {
         renderItems(req, res, "Filtered Items", storeService.getItemsByCategory(category));
@@ -155,24 +156,21 @@ app.get('/items', (req, res) => {
 
 // Categories Route
 app.get('/categories', (req, res) => {
-    const currentYear = new Date().getFullYear(); // Get the current year
     storeService.getCategories()
         .then((data) => {
-            res.render('categories', { title: "Categories", categories: data, activeRoute: req.path, currentYear });
+            res.render('categories', { title: "Categories", categories: data, activeRoute: req.path });
         })
         .catch((err) => {
-            res.render('categories', { title: "Categories", message: "No results", activeRoute: req.path, currentYear });
+            res.render('categories', { title: "Categories", message: "No results", activeRoute: req.path });
         });
 });
 
 // Item Details Route (By ID)
 app.get('/item/:id', (req, res) => {
     const id = req.params.id;
-    const currentYear = new Date().getFullYear(); // Get the current year
-
     storeService.getItemById(id)
         .then((item) => {
-            res.render('itemDetails', { title: "Item Details", item, activeRoute: req.path, currentYear });
+            res.render('itemDetails', { title: "Item Details", item, activeRoute: req.path });
         })
         .catch((err) => {
             res.status(404).send("Item not found.");

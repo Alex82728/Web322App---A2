@@ -1,13 +1,27 @@
 <div class="container mt-4">
     <h2>Add a New Item</h2>
     <form action="/items/add" method="POST" enctype="multipart/form-data">
-        <div class="form-group">
+        <!-- Item Name -->
+        <div class="form-group mb-3">
             <label for="name">Item Name</label>
-            <input type="text" class="form-control" id="name" name="name" required>
+            <input 
+                type="text" 
+                class="form-control" 
+                id="name" 
+                name="name" 
+                placeholder="Enter the item name" 
+                required>
         </div>
-        <div class="form-group">
+
+        <!-- Category Selection -->
+        <div class="form-group mb-3">
             <label for="categoryId">Category</label>
-            <select class="form-control" id="categoryId" name="categoryId" required>
+            <select 
+                class="form-control" 
+                id="categoryId" 
+                name="categoryId" 
+                required>
+                <option value="" disabled selected>Select a category</option>
                 <option value="1">Helmets</option>
                 <option value="2">Jackets</option>
                 <option value="3">Gloves</option>
@@ -16,25 +30,58 @@
                 <option value="6">Accessories</option>
             </select>
         </div>
-        <div class="form-group">
+
+        <!-- Price -->
+        <div class="form-group mb-3">
             <label for="price">Price ($)</label>
-            <input type="number" class="form-control" id="price" name="price" step="0.01" required>
+            <input 
+                type="number" 
+                class="form-control" 
+                id="price" 
+                name="price" 
+                placeholder="Enter the price" 
+                step="0.01" 
+                min="0" 
+                required>
         </div>
-        <div class="form-group">
+
+        <!-- Description -->
+        <div class="form-group mb-3">
             <label for="description">Description</label>
-            <textarea class="form-control" id="description" name="description" required></textarea>
+            <textarea 
+                class="form-control" 
+                id="description" 
+                name="description" 
+                placeholder="Enter a brief description" 
+                rows="3" 
+                required></textarea>
         </div>
-        <div class="form-group">
+
+        <!-- Published Status -->
+        <div class="form-group mb-3">
             <label for="published">Published</label>
-            <select class="form-control" id="published" name="published">
+            <select 
+                class="form-control" 
+                id="published" 
+                name="published">
                 <option value="true" selected>Yes</option>
                 <option value="false">No</option>
             </select>
         </div>
-        <div class="form-group">
+
+        <!-- Feature Image -->
+        <div class="form-group mb-3">
             <label for="featureImage">Feature Image</label>
-            <input type="file" class="form-control-file" id="featureImage" name="featureImage" accept="image/*" required>
+            <input 
+                type="file" 
+                class="form-control-file" 
+                id="featureImage" 
+                name="featureImage" 
+                accept="image/*" 
+                required>
         </div>
+
+        <!-- Submit Button -->
         <button type="submit" class="btn btn-primary">Add Item</button>
     </form>
 </div>

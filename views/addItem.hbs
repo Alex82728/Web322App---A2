@@ -22,12 +22,14 @@
                 name="categoryId" 
                 required>
                 <option value="" disabled selected>Select a category</option>
-                <option value="1">Helmets</option>
-                <option value="2">Jackets</option>
-                <option value="3">Gloves</option>
-                <option value="4">Pants</option>
-                <option value="5">Boots</option>
-                <option value="6">Accessories</option>
+
+                {{#if categories}}
+                    {{#each categories}}
+                        <option value="{{id}}">{{category}}</option>
+                    {{/each}}
+                {{else}}
+                    <option disabled>No categories available</option>
+                {{/if}}
             </select>
         </div>
 

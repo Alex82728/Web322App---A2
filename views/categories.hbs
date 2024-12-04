@@ -1,15 +1,17 @@
-{{!-- categories.hbs --}}
 <div class="container">
     <div class="row">
         <div class="col-md-12">
             <h1 class="text-center">{{title}}</h1>
-            
+
             {{!-- Show message if no categories are available --}}
-            {{#unless categories}}
+            {{#unless categories.length}}
                 <div class="col-md-12 text-center">
                     <strong>{{message}}</strong>
                 </div>
             {{/unless}}
+
+            {{!-- Add Category Button --}}
+            <a href="/categories/add" class="btn btn-success pull-right">Add Category</a>
 
             {{!-- Table for categories --}}
             <div class="table-responsive">
@@ -18,6 +20,7 @@
                         <tr>
                             <th>Category ID</th>
                             <th>Category Name</th>
+                            <th></th>  <!-- New column for delete button -->
                         </tr>
                     </thead>
                     <tbody>
@@ -25,6 +28,10 @@
                             <tr>
                                 <td><a href="/items?category={{this.id}}">{{this.id}}</a></td>
                                 <td><a href="/items?category={{this.id}}">{{this.name}}</a></td>
+                                <td>
+                                    <!-- Remove Category Link -->
+                                    <a href="/categories/delete/{{this.id}}" class="btn btn-danger btn-sm">Remove</a>
+                                </td>
                             </tr>
                         {{/each}}
                     </tbody>

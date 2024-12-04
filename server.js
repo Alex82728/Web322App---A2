@@ -1,6 +1,5 @@
 /*********************************************************************************
-
-WEB322 – Assignment 02
+WEB322 – Assignment 04
 I declare that this assignment is my own work in accordance with Seneca Academic Policy.  
 No part of this assignment has been copied manually or electronically from any other source 
 (including 3rd party web sites) or distributed to other students.
@@ -9,19 +8,14 @@ Name: Alexandru Zaporojan
 Student ID: 105756233 
 Date: 2024/10/08
 
-Render App URL: https://web322app-a2-1.onrender.com 
-
 Render App URL: https://web322app-a2-1.onrender.com
-
-GitHub Repository URL: https://github.com/azaporojan_seneca/Web-322--app
-
+GitHub Repository URL: https://github.com/Alex82728/Web322App---A2.git
 ********************************************************************************/ 
-
 const express = require('express');
 const path = require('path');
 const exphbs = require('express-handlebars');
 const storeService = require('./store-service');
-const multer = require("multer");
+const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
 const streamifier = require('streamifier');
 
@@ -38,8 +32,8 @@ cloudinary.config({
 
 const upload = multer();
 
-// Configure Express to use Handlebars with custom helpers
-app.engine('.hbs', exphbs.engine({
+// Define the formatDate helper for Handlebars
+const hbs = exphbs.create({
     extname: '.hbs',
     helpers: {
         navLink: function (url, options) {
@@ -56,9 +50,19 @@ app.engine('.hbs', exphbs.engine({
         },
         eq: function (a, b) {
             return a === b;
+        },
+        // New formatDate helper
+        formatDate: function(dateObj) {
+            let year = dateObj.getFullYear();
+            let month = (dateObj.getMonth() + 1).toString();
+            let day = dateObj.getDate().toString();
+            return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
         }
     }
-}));
+});
+
+// Set up Handlebars engine
+app.engine('.hbs', hbs.engine);
 app.set('view engine', '.hbs');
 
 // Middleware to set active route
@@ -86,8 +90,42 @@ app.get('/about', (req, res) => {
 });
 
 // Add Item Route
-app.get('/items/add', (req, res) => {
-    res.render('addItem', { title: "Add New Item", activeRoute: req.path });
+app.get('/items/add', async (req, res) => {
+    try {
+        let categories = await storeService.getCategories();
+        res.render('addItem', { 
+            title: "Add New Item", 
+            categories: categories, // Pass categories to the view
+            activeRoute: req.path 
+        });
+    } catch (err) {
+        res.render('addItem', { 
+            title: "Add New Item", 
+            categories: [], 
+            activeRoute: req.path 
+        });
+    }
+});
+
+// Add Category Route (GET)
+app.get('/categories/add', (req, res) => {
+    res.render('addCategory', { title: "Add New Category", activeRoute: req.path });
+});
+
+// Add Category Route (POST)
+app.post('/categories/add', (req, res) => {
+    const newCategory = {
+        name: req.body.name,
+        description: req.body.description
+    };
+
+    storeService.addCategory(newCategory)
+        .then(() => {
+            res.redirect('/categories');
+        })
+        .catch(() => {
+            res.status(500).send("Unable to add category.");
+        });
 });
 
 // Shop Route (Display Published Items, Filtered by Category if Query Present)
@@ -171,7 +209,11 @@ app.get('/items', (req, res) => {
 app.get('/categories', (req, res) => {
     storeService.getCategories()
         .then((data) => {
-            res.render('categories', { title: "Categories", categories: data, activeRoute: req.path });
+            if (data.length === 0) {
+                res.render('categories', { title: "Categories", message: "No results", activeRoute: req.path });
+            } else {
+                res.render('categories', { title: "Categories", categories: data, activeRoute: req.path });
+            }
         })
         .catch((err) => {
             res.render('categories', { title: "Categories", message: "No results", activeRoute: req.path });
@@ -263,18 +305,19 @@ app.delete('/items/:id', (req, res) => {
         });
 });
 
-// 404 Route for unknown paths
-app.use((req, res) => {
-    res.status(404).render('404', { title: 'Page Not Found', activeRoute: req.path });
+// Delete Category
+app.delete('/categories/:id', (req, res) => {
+    const categoryId = req.params.id;
+
+    storeService.deleteCategory(categoryId)
+        .then(() => {
+            res.status(200).json({ message: "Category deleted successfully." });
+        })
+        .catch(() => {
+            res.status(500).send("Unable to delete category.");
+        });
 });
 
-// Start the server
-storeService.initialize()
-    .then(() => {
-        app.listen(PORT, () => {
-            console.log(`Server is running on http://localhost:${PORT}`);
-        });
-    })
-    .catch((error) => {
-        console.error("Failed to initialize store service:", error);
-    });
+app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+});

@@ -1,225 +1,188 @@
-const fs = require('fs');
-const path = require('path');
-const cloudinary = require('cloudinary').v2;
-
-// Initialize Cloudinary configuration
-cloudinary.config({
-    cloud_name: 'dwdftakvt',
-    api_key: '242931154419331',
-    api_secret: 'CJeSPxAcuaHBYV8NpPZSd8aQP4c',
-});
-
-// In-memory storage for items and categories
-let items = [];
-let categories = [];
-
-// Initialize the store service
-module.exports.initialize = () => {
-    return new Promise((resolve, reject) => {
-        // Load items from items.json
-        fs.readFile(path.join(__dirname, 'data', 'items.json'), 'utf8', (err, data) => {
-            if (err) {
-                reject("Unable to read items file");
-                return;
-            }
-
-            items = JSON.parse(data);
-
-            // Load categories from categories.json
-            fs.readFile(path.join(__dirname, 'data', 'categories.json'), 'utf8', (err, data) => {
-                if (err) {
-                    reject("Unable to read categories file");
-                    return;
-                }
-
-                categories = JSON.parse(data);
-                resolve();
-            });
-        });
-    });
-};
-
-// Function to delete an image from Cloudinary
-function deleteImage(publicId) {
-    return new Promise((resolve, reject) => {
-        cloudinary.uploader.destroy(publicId, (error, result) => {
-            if (error) {
-                reject(error);
-            } else {
-                resolve(result);
-            }
-        });
-    });
-}
-
-// Add a new item
-module.exports.addItem = (itemData, file) => {
-    return new Promise((resolve, reject) => {
-        // Check if published flag is set correctly
-        itemData.published = itemData.published ? true : false;
-
-        // Handle feature image upload if provided
-        if (file && file.buffer) {
-            const featureImageBuffer = file.buffer;
-
-            // Upload image to Cloudinary
-            cloudinary.uploader.upload_stream({ folder: 'motorcycle_gear' }, (error, result) => {
-                if (error) {
-                    reject("Error uploading feature image.");
-                    return;
-                }
-
-                itemData.featureImage = result.secure_url; // Store Cloudinary URL for the image
-
-                // Generate unique item ID
-                itemData.id = items.length ? Math.max(...items.map(item => item.id)) + 1 : 1;
-
-                // Auto set the postDate if it's not provided
-                itemData.postDate = itemData.postDate || new Date().toISOString();
-
-                items.push(itemData);
-
-                // Save the new item in items.json
-                fs.writeFile(path.join(__dirname, 'data', 'items.json'), JSON.stringify(items, null, 2), (err) => {
-                    if (err) {
-                        reject("Unable to save item. Please check server logs.");
-                        return;
-                    }
-                    resolve(itemData);
-                });
-            }).end(featureImageBuffer); // Send the image buffer to Cloudinary
-        } else {
-            reject("No feature image uploaded");
-        }
-    });
-};
-
-// Function to delete an item
-module.exports.deleteItem = (itemId) => {
-    return new Promise((resolve, reject) => {
-        const itemIndex = items.findIndex(i => i.id === parseInt(itemId));
-
-        if (itemIndex !== -1) {
-            const item = items[itemIndex];
-
-            if (item.featureImage) {
-                const publicId = item.featureImage.split('/').pop().split('.')[0];
-
-                // Delete image from Cloudinary
-                deleteImage(publicId)
-                    .then(() => {
-                        items.splice(itemIndex, 1); // Remove item from local storage
-                        fs.writeFile(path.join(__dirname, 'data', 'items.json'), JSON.stringify(items, null, 2), (err) => {
-                            if (err) {
-                                reject("Unable to delete item. Please check server logs.");
-                                return;
-                            }
-                            resolve();
-                        });
-                    })
-                    .catch(error => {
-                        reject("Failed to delete image from Cloudinary.");
-                    });
-            } else {
-                items.splice(itemIndex, 1); // No image to delete
-                fs.writeFile(path.join(__dirname, 'data', 'items.json'), JSON.stringify(items, null, 2), (err) => {
-                    if (err) {
-                        reject("Unable to delete item. Please check server logs.");
-                        return;
-                    }
-                    resolve();
-                });
-            }
-        } else {
-            reject("Item not found");
-        }
-    });
-};
+const { Item, Category } = require('./models'); // Assuming you have imported your models from a separate 'models' file
+const { Op } = require('sequelize');
 
 // Get all items
 module.exports.getAllItems = () => {
     return new Promise((resolve, reject) => {
-        if (items.length === 0) {
-            reject("No results returned");
-            return;
+        Item.findAll()
+            .then(items => {
+                if (items && items.length) {
+                    resolve(items);
+                } else {
+                    reject('No items found');
+                }
+            })
+            .catch(err => reject('Error retrieving items: ' + err.message));
+    });
+};
+
+// Get items by category
+module.exports.getItemsByCategory = (categoryId) => {
+    return new Promise((resolve, reject) => {
+        Item.findAll({ where: { categoryId: categoryId } })
+            .then(items => {
+                if (items && items.length) {
+                    resolve(items);
+                } else {
+                    reject('No items found for this category');
+                }
+            })
+            .catch(err => reject('Error retrieving items by category: ' + err.message));
+    });
+};
+
+// Get items by minimum date
+module.exports.getItemsByMinDate = (minDateStr) => {
+    return new Promise((resolve, reject) => {
+        const { gte } = Op;
+        Item.findAll({
+            where: {
+                postDate: {
+                    [gte]: new Date(minDateStr)
+                }
+            }
+        })
+            .then(items => {
+                if (items && items.length) {
+                    resolve(items);
+                } else {
+                    reject('No items found after this date');
+                }
+            })
+            .catch(err => reject('Error retrieving items by date: ' + err.message));
+    });
+};
+
+// Get item by ID
+module.exports.getItemById = (id) => {
+    return new Promise((resolve, reject) => {
+        Item.findByPk(id)
+            .then(item => {
+                if (item) {
+                    resolve(item);
+                } else {
+                    reject('Item not found');
+                }
+            })
+            .catch(err => reject('Error retrieving item by ID: ' + err.message));
+    });
+};
+
+// Add a new item
+module.exports.addItem = (itemData) => {
+    return new Promise((resolve, reject) => {
+        // Ensure published is a boolean
+        itemData.published = itemData.published ? true : false;
+
+        // Replace blank values with null
+        for (let key in itemData) {
+            if (itemData[key] === "") {
+                itemData[key] = null;
+            }
         }
-        resolve(items);
+
+        // Set postDate to current date
+        itemData.postDate = new Date();
+
+        Item.create(itemData)
+            .then(item => resolve(item)) // Successfully created
+            .catch(err => reject('Unable to create item: ' + err.message));
     });
 };
 
 // Get published items
 module.exports.getPublishedItems = () => {
     return new Promise((resolve, reject) => {
-        let publishedItems = items.filter(item => item.published);
-        if (publishedItems.length === 0) {
-            reject("No results returned");
-            return;
-        }
-        resolve(publishedItems);
+        Item.findAll({ where: { published: true } })
+            .then(items => {
+                if (items && items.length) {
+                    resolve(items);
+                } else {
+                    reject('No published items found');
+                }
+            })
+            .catch(err => reject('Error retrieving published items: ' + err.message));
     });
 };
 
-// Get categories
+// Get published items by category
+module.exports.getPublishedItemsByCategory = (categoryId) => {
+    return new Promise((resolve, reject) => {
+        Item.findAll({
+            where: {
+                published: true,
+                categoryId: categoryId
+            }
+        })
+            .then(items => {
+                if (items && items.length) {
+                    resolve(items);
+                } else {
+                    reject('No published items found for this category');
+                }
+            })
+            .catch(err => reject('Error retrieving published items by category: ' + err.message));
+    });
+};
+
+// Get all categories
 module.exports.getCategories = () => {
     return new Promise((resolve, reject) => {
-        if (categories.length === 0) {
-            reject("No results returned");
-            return;
-        }
-        resolve(categories);
+        Category.findAll()
+            .then(categories => {
+                if (categories && categories.length) {
+                    resolve(categories);
+                } else {
+                    reject('No categories found');
+                }
+            })
+            .catch(err => reject('Error retrieving categories: ' + err.message));
     });
 };
 
-// Get an item by ID
-module.exports.getItemById = (id) => {
+// Add a new category
+module.exports.addCategory = (categoryData) => {
     return new Promise((resolve, reject) => {
-        const item = items.find(item => item.id === parseInt(id));
-        if (!item) {
-            reject("Item not found");
-            return;
-        }
-        resolve(item);
+        // Replace blank values with null
+        categoryData.name = categoryData.name || null;
+        categoryData.description = categoryData.description || null;
+
+        Category.create(categoryData)
+            .then(() => resolve()) // Successfully created
+            .catch(err => reject('Unable to create category: ' + err.message));
     });
 };
 
-// Get items by category
-module.exports.getItemsByCategory = (categoryName) => {
+// Delete a category by ID
+module.exports.deleteCategoryById = (id) => {
     return new Promise((resolve, reject) => {
-        const filteredItems = items.filter(item => item.category && item.category.toLowerCase() === categoryName.toLowerCase());
-
-        if (filteredItems.length === 0) {
-            reject("No items found for this category");
-            return;
-        }
-
-        resolve(filteredItems);
+        Category.destroy({
+            where: { id: id }
+        })
+            .then(result => {
+                if (result === 0) {
+                    reject('Category not found or already deleted');
+                } else {
+                    resolve(); // Successfully deleted
+                }
+            })
+            .catch(err => reject('Unable to delete category: ' + err.message));
     });
 };
 
-// Get items by minimum date
-module.exports.getItemsByMinDate = (minDate) => {
+// Delete an item by ID
+module.exports.deleteItemById = (id) => {
     return new Promise((resolve, reject) => {
-        const filteredItems = items.filter(item => new Date(item.postDate) >= new Date(minDate));
-
-        if (filteredItems.length === 0) {
-            reject("No items found after this date");
-            return;
-        }
-
-        resolve(filteredItems);
-    });
-};
-
-// Get category by ID
-module.exports.getCategoryById = (categoryId) => {
-    return new Promise((resolve, reject) => {
-        const category = categories.find(cat => cat.id === parseInt(categoryId));
-
-        if (!category) {
-            reject("Category not found");
-            return;
-        }
-
-        resolve(category);
+        Item.destroy({
+            where: { id: id }
+        })
+            .then(result => {
+                if (result === 0) {
+                    reject('Item not found or already deleted');
+                } else {
+                    resolve(); // Successfully deleted
+                }
+            })
+            .catch(err => reject('Unable to delete item: ' + err.message));
     });
 };

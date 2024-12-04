@@ -1,0 +1,20 @@
+<div class="container mt-4">
+    <h2>Add Category</h2>
+    <form action="/categories/add" method="POST">
+        <!-- Category Name -->
+        <div class="form-group mb-3">
+            <label for="category">Category</label>
+            <input 
+                type="text" 
+                class="form-control" 
+                id="category" 
+                name="category" 
+                placeholder="Enter the category name" 
+                required 
+                autofocus>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-primary">Add Category</button>
+    </form>
+</div>

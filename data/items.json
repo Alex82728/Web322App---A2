@@ -1,0 +1,324 @@
+[
+  {
+    "id": 1,
+    "name": "Full Face Helmet",
+    "categoryId": 1,
+    "price": 199.99,
+    "description": "A full face helmet offering complete protection and comfort.",
+    "published": true,
+    "postDate": "2024-11-21",
+    "title": "Full Face Helmet"
+  },
+  {
+    "id": 2,
+    "name": "Open Face Helmet",
+    "categoryId": 1,
+    "price": 149.99,
+    "description": "An open face helmet with a vintage look and great ventilation.",
+    "published": false,
+    "postDate": "2024-11-20",
+    "title": "Open Face Helmet"
+  },
+  {
+    "id": 3,
+    "name": "Leather Riding Jacket",
+    "categoryId": 2,
+    "price": 249.99,
+    "description": "A classic leather jacket that combines protection and style.",
+    "published": true,
+    "postDate": "2024-11-18",
+    "title": "Leather Riding Jacket"
+  },
+  {
+    "id": 4,
+    "name": "Cordura Riding Jacket",
+    "categoryId": 2,
+    "price": 189.99,
+    "description": "Durable Cordura jacket with armor and ventilation options.",
+    "published": true,
+    "postDate": "2024-11-17",
+    "title": "Cordura Riding Jacket"
+  },
+  {
+    "id": 5,
+    "name": "Racing Gloves",
+    "categoryId": 3,
+    "price": 79.99,
+    "description": "Professional racing gloves with touchscreen compatibility.",
+    "published": false,
+    "postDate": "2024-11-16",
+    "title": "Racing Gloves"
+  },
+  {
+    "id": 6,
+    "name": "Winter Gloves",
+    "categoryId": 3,
+    "price": 49.99,
+    "description": "Warm and waterproof gloves for cold weather riding.",
+    "published": true,
+    "postDate": "2024-11-15",
+    "title": "Winter Gloves"
+  },
+  {
+    "id": 7,
+    "name": "Armored Riding Pants",
+    "categoryId": 4,
+    "price": 139.99,
+    "description": "Protective riding pants with reinforced impact zones.",
+    "published": true,
+    "postDate": "2024-11-14",
+    "title": "Armored Riding Pants"
+  },
+  {
+    "id": 8,
+    "name": "Jeans with Armoring",
+    "categoryId": 4,
+    "price": 129.99,
+    "description": "Stylish jeans with internal armor for added protection.",
+    "published": true,
+    "postDate": "2024-11-13",
+    "title": "Jeans with Armoring"
+  },
+  {
+    "id": 9,
+    "name": "Motorcycle Boots",
+    "categoryId": 5,
+    "price": 189.99,
+    "description": "High-quality leather boots designed for motorcyclists.",
+    "published": true,
+    "postDate": "2024-11-12",
+    "title": "Motorcycle Boots"
+  },
+  {
+    "id": 10,
+    "name": "Adventure Boots",
+    "categoryId": 5,
+    "price": 199.99,
+    "description": "Rugged boots for adventure riders with a waterproof lining.",
+    "published": false,
+    "postDate": "2024-11-11",
+    "title": "Adventure Boots"
+  },
+  {
+    "id": 11,
+    "name": "Buffalo Leather Glove",
+    "categoryId": 3,
+    "price": 99.99,
+    "description": "Buffalo leather gloves offering great grip and protection.",
+    "published": true,
+    "postDate": "2024-11-10",
+    "title": "Buffalo Leather Glove"
+  },
+  {
+    "id": 12,
+    "name": "Reflective Vest",
+    "categoryId": 2,
+    "price": 29.99,
+    "description": "Safety vest with reflective material for visibility.",
+    "published": false,
+    "postDate": "2024-11-09",
+    "title": "Reflective Vest"
+  },
+  {
+    "id": 13,
+    "name": "Saddlebags",
+    "categoryId": 6,
+    "price": 99.99,
+    "description": "Durable saddlebags for extra storage on your motorcycle.",
+    "published": true,
+    "postDate": "2024-11-08",
+    "title": "Saddlebags"
+  },
+  {
+    "id": 14,
+    "name": "Mesh Riding Jacket",
+    "categoryId": 2,
+    "price": 179.99,
+    "description": "Lightweight mesh jacket with armor and ventilation.",
+    "published": true,
+    "postDate": "2024-11-07",
+    "title": "Mesh Riding Jacket"
+  },
+  {
+    "id": 15,
+    "name": "Leather Touring Boots",
+    "categoryId": 5,
+    "price": 249.99,
+    "description": "Premium touring boots made from leather.",
+    "published": true,
+    "postDate": "2024-11-06",
+    "title": "Leather Touring Boots"
+  },
+  {
+    "id": 16,
+    "name": "Adventure Touring Jacket",
+    "categoryId": 2,
+    "price": 269.99,
+    "description": "Jacket designed for long-distance touring in all weather.",
+    "published": true,
+    "postDate": "2024-11-05",
+    "title": "Adventure Touring Jacket"
+  },
+  {
+    "id": 17,
+    "name": "Heated Riding Gloves",
+    "categoryId": 3,
+    "price": 139.99,
+    "description": "Electric gloves that keep your hands warm in cold conditions.",
+    "published": false,
+    "postDate": "2024-11-04",
+    "title": "Heated Riding Gloves"
+  },
+  {
+    "id": 18,
+    "name": "Kevlar Riding Pants",
+    "categoryId": 4,
+    "price": 199.99,
+    "description": "Reinforced with Kevlar for extra protection.",
+    "published": true,
+    "postDate": "2024-11-03",
+    "title": "Kevlar Riding Pants"
+  },
+  {
+    "id": 19,
+    "name": "Off-Road Helmet",
+    "categoryId": 1,
+    "price": 249.99,
+    "description": "Helmet designed for off-road adventure riding.",
+    "published": true,
+    "postDate": "2024-11-02",
+    "title": "Off-Road Helmet"
+  },
+  {
+    "id": 20,
+    "name": "Modular Helmet",
+    "categoryId": 1,
+    "price": 279.99,
+    "description": "Helmet that can convert between full face and open face.",
+    "published": false,
+    "postDate": "2024-11-01",
+    "title": "Modular Helmet"
+  },
+  {
+    "id": 21,
+    "name": "Motorcycle Backpack",
+    "categoryId": 6,
+    "price": 89.99,
+    "description": "Backpack designed specifically for motorcyclists.",
+    "published": true,
+    "postDate": "2024-10-31",
+    "title": "Motorcycle Backpack"
+  },
+  {
+    "id": 22,
+    "name": "Chain Lube",
+    "categoryId": 6,
+    "price": 14.99,
+    "description": "Lubricant for motorcycle chains.",
+    "published": true,
+    "postDate": "2024-10-30",
+    "title": "Chain Lube"
+  },
+  {
+    "id": 23,
+    "name": "Motorcycle Cover",
+    "categoryId": 6,
+    "price": 59.99,
+    "description": "Protective cover for motorcycles.",
+    "published": true,
+    "postDate": "2024-10-29",
+    "title": "Motorcycle Cover"
+  },
+  {
+    "id": 24,
+    "name": "Bluetooth Helmet Intercom",
+    "categoryId": 6,
+    "price": 149.99,
+    "description": "Communication device for motorcyclists.",
+    "published": true,
+    "postDate": "2024-10-28",
+    "title": "Bluetooth Helmet Intercom"
+  },
+  {
+    "id": 25,
+    "name": "Winter Motorcycle Jacket",
+    "categoryId": 2,
+    "price": 199.99,
+    "description": "Insulated jacket for winter riding.",
+    "published": true,
+    "postDate": "2024-10-27",
+    "title": "Winter Motorcycle Jacket"
+  },
+  {
+    "id": 26,
+    "name": "Adventure Touring Pants",
+    "categoryId": 4,
+    "price": 179.99,
+    "description": "Rugged pants for off-road and adventure riding.",
+    "published": true,
+    "postDate": "2024-10-26",
+    "title": "Adventure Touring Pants"
+  },
+  {
+    "id": 27,
+    "name": "Motorcycle Phone Mount",
+    "categoryId": 6,
+    "price": 39.99,
+    "description": "Mount for attaching your phone to the motorcycle.",
+    "published": true,
+    "postDate": "2024-10-25",
+    "title": "Motorcycle Phone Mount"
+  },
+  {
+    "id": 28,
+    "name": "Neck Warmer",
+    "categoryId": 6,
+    "price": 19.99,
+    "description": "Warm neck gaiter for winter rides.",
+    "published": true,
+    "postDate": "2024-10-24",
+    "title": "Neck Warmer"
+  },
+  {
+    "id": 29,
+    "name": "Motorcycle Cleaning Kit",
+    "categoryId": 6,
+    "price": 49.99,
+    "description": "Cleaning kit for keeping your motorcycle pristine.",
+    "published": true,
+    "postDate": "2024-10-23",
+    "title": "Motorcycle Cleaning Kit"
+  },
+  {
+    "id": 30,
+    "name": "Crash Bars",
+    "categoryId": 6,
+    "price": 149.99,
+    "description": "Protective bars to prevent damage during a fall.",
+    "published": false,
+    "postDate": "2024-10-22",
+    "title": "Crash Bars"
+  },
+  {
+    "id": 31,
+    "name": "Gloves",
+    "categoryId": 3,
+    "price": 100,
+    "description": "Gloves",
+    "published": true,
+    "featureImage": "http://res.cloudinary.com/dwdftakvt/image/upload/v1730767040/opss6t8e4edzhamo6rsp.jpg",
+    "postDate": "2024-10-21",
+    "title": "Gloves"
+  },
+  {
+    "id": 32,
+    "name": "Full Face Helmet",
+    "categoryId": 1,
+    "price": 2000,
+    "description": "Racing helmet",
+    "published": true,
+    "featureImage": "https://res.cloudinary.com/dwdftakvt/image/upload/v1730767496/hyp7tkqligt8hw3mmxuu.png",
+    "postDate": "2024-10-20",
+    "title": "Full Face Helmet"
+  }
+]

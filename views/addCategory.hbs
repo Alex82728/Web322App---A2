@@ -10,8 +10,11 @@
                 id="category" 
                 name="name" 
                 placeholder="Enter the category name" 
-                required 
-                autofocus />
+                value="{{name}}" 
+                required autofocus />
+            {{#if errors.name}}
+                <div class="text-danger">{{errors.name}}</div>
+            {{/if}}
         </div>
 
         <!-- Submit Button -->

@@ -1,16 +1,3 @@
-/*********************************************************************************
-WEB322 – Assignment 04
-I declare that this assignment is my own work in accordance with Seneca Academic Policy.  
-No part of this assignment has been copied manually or electronically from any other source 
-(including 3rd party web sites) or distributed to other students.
-
-Name: Alexandru Zaporojan
-Student ID: 105756233 
-Date: 2024/10/08
-
-Render App URL: https://web322app-a2-1.onrender.com
-GitHub Repository URL: https://github.com/Alex82728/Web322App---A2.git
-********************************************************************************/ 
 const express = require('express');
 const path = require('path');
 const exphbs = require('express-handlebars');
@@ -51,7 +38,6 @@ const hbs = exphbs.create({
         eq: function (a, b) {
             return a === b;
         },
-        // New formatDate helper
         formatDate: function(dateObj) {
             let year = dateObj.getFullYear();
             let month = (dateObj.getMonth() + 1).toString();
@@ -89,13 +75,13 @@ app.get('/about', (req, res) => {
     res.render('about', { title: "About Us", activeRoute: req.path });
 });
 
-// Add Item Route
+// Add Item Route (GET)
 app.get('/items/add', async (req, res) => {
     try {
         let categories = await storeService.getCategories();
         res.render('addItem', { 
             title: "Add New Item", 
-            categories: categories, // Pass categories to the view
+            categories: categories, 
             activeRoute: req.path 
         });
     } catch (err) {
@@ -134,7 +120,7 @@ app.get('/shop', async (req, res) => {
 
     try {
         let items = [];
-        
+
         // If there's a "category" query, filter the returned items by category
         if (req.query.category) {
             items = await storeService.getPublishedItemsByCategory(req.query.category);
@@ -218,7 +204,7 @@ app.get('/shop/:id', (req, res) => {
                 res.render('itemDetails', { 
                     title: "Item Details", 
                     item, 
-                    category: category.name, // Pass the category name to the template
+                    category: category.name, 
                     activeRoute: req.path 
                 });
             } catch (err) {
@@ -259,7 +245,7 @@ app.post('/items/add', upload.single("featureImage"), (req, res) => {
                     id: 0,
                     featureImage: result.secure_url,
                     published: req.body.published === 'true',
-                    postDate: new Date(), // Add this line to set the post date
+                    postDate: new Date(),
                     ...req.body
                 };
 

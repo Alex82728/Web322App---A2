@@ -10,27 +10,29 @@
                 id="name" 
                 name="name" 
                 placeholder="Enter the item name" 
+                value="{{name}}" 
                 required>
+            {{#if errors.name}}
+                <div class="text-danger">{{errors.name}}</div>
+            {{/if}}
         </div>
 
         <!-- Category Selection -->
         <div class="form-group mb-3">
             <label for="categoryId">Category</label>
-            <select 
-                class="form-control" 
-                id="categoryId" 
-                name="categoryId" 
-                required>
+            <select class="form-control" id="categoryId" name="categoryId" required>
                 <option value="" disabled selected>Select a category</option>
-
                 {{#if categories}}
                     {{#each categories}}
-                        <option value="{{id}}">{{category}}</option>
+                        <option value="{{id}}" {{#if selected}}{{selected}}{{/if}}>{{name}}</option>
                     {{/each}}
                 {{else}}
                     <option disabled>No categories available</option>
                 {{/if}}
             </select>
+            {{#if errors.categoryId}}
+                <div class="text-danger">{{errors.categoryId}}</div>
+            {{/if}}
         </div>
 
         <!-- Price -->
@@ -44,7 +46,11 @@
                 placeholder="Enter the price" 
                 step="0.01" 
                 min="0" 
+                value="{{price}}" 
                 required>
+            {{#if errors.price}}
+                <div class="text-danger">{{errors.price}}</div>
+            {{/if}}
         </div>
 
         <!-- Description -->
@@ -56,18 +62,18 @@
                 name="description" 
                 placeholder="Enter a brief description" 
                 rows="3" 
-                required></textarea>
+                required>{{description}}</textarea>
+            {{#if errors.description}}
+                <div class="text-danger">{{errors.description}}</div>
+            {{/if}}
         </div>
 
         <!-- Published Status -->
         <div class="form-group mb-3">
             <label for="published">Published</label>
-            <select 
-                class="form-control" 
-                id="published" 
-                name="published">
-                <option value="true" selected>Yes</option>
-                <option value="false">No</option>
+            <select class="form-control" id="published" name="published">
+                <option value="true" {{#if published}}selected{{/if}}>Yes</option>
+                <option value="false" {{#unless published}}selected{{/unless}}>No</option>
             </select>
         </div>
 

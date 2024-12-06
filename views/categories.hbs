@@ -4,6 +4,7 @@
             <h1 class="text-center">{{title}}</h1>
 
             {{#if categories}}
+                <!-- If categories exist, check if there's no category -->
                 {{#unless categories.length}}
                     <div class="col-md-12 text-center">
                         <strong>No categories available</strong>

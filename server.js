@@ -157,13 +157,13 @@ app.get('/categories', (req, res) => {
     storeService.getCategories()
         .then((data) => {
             if (data.length === 0) {
-                res.render('categories', { title: "Categories", message: "No results", activeRoute: req.path });
+                res.render('categories', { title: "Categories", message: "No categories available", activeRoute: req.path });
             } else {
                 res.render('categories', { title: "Categories", categories: data, activeRoute: req.path });
             }
         })
         .catch((err) => {
-            res.render('categories', { title: "Categories", message: "No results", activeRoute: req.path });
+            res.render('categories', { title: "Categories", message: "Error retrieving categories", activeRoute: req.path });
         });
 });
 

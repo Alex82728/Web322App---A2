@@ -3,186 +3,164 @@ const { Op } = require('sequelize');
 
 // Get all items
 module.exports.getAllItems = () => {
-    return new Promise((resolve, reject) => {
-        Item.findAll()
-            .then(items => {
-                if (items && items.length) {
-                    resolve(items);
-                } else {
-                    reject('No items found');
-                }
-            })
-            .catch(err => reject('Error retrieving items: ' + err.message));
-    });
+    return Item.findAll()
+        .then(items => {
+            if (items && items.length) {
+                return items;
+            } else {
+                throw new Error('No items found');
+            }
+        })
+        .catch(err => { throw new Error('Error retrieving items: ' + err.message); });
 };
 
 // Get items by category
 module.exports.getItemsByCategory = (categoryId) => {
-    return new Promise((resolve, reject) => {
-        Item.findAll({ where: { categoryId: categoryId } })
-            .then(items => {
-                if (items && items.length) {
-                    resolve(items);
-                } else {
-                    reject('No items found for this category');
-                }
-            })
-            .catch(err => reject('Error retrieving items by category: ' + err.message));
-    });
+    return Item.findAll({ where: { categoryId: categoryId } })
+        .then(items => {
+            if (items && items.length) {
+                return items;
+            } else {
+                throw new Error('No items found for this category');
+            }
+        })
+        .catch(err => { throw new Error('Error retrieving items by category: ' + err.message); });
 };
 
 // Get items by minimum date
 module.exports.getItemsByMinDate = (minDateStr) => {
-    return new Promise((resolve, reject) => {
-        const { gte } = Op;
-        Item.findAll({
-            where: {
-                postDate: {
-                    [gte]: new Date(minDateStr)
-                }
+    const { gte } = Op;
+    return Item.findAll({
+        where: {
+            postDate: {
+                [gte]: new Date(minDateStr)
             }
-        })
-            .then(items => {
-                if (items && items.length) {
-                    resolve(items);
-                } else {
-                    reject('No items found after this date');
-                }
-            })
-            .catch(err => reject('Error retrieving items by date: ' + err.message));
-    });
+        }
+    })
+    .then(items => {
+        if (items && items.length) {
+            return items;
+        } else {
+            throw new Error('No items found after this date');
+        }
+    })
+    .catch(err => { throw new Error('Error retrieving items by date: ' + err.message); });
 };
 
 // Get item by ID
 module.exports.getItemById = (id) => {
-    return new Promise((resolve, reject) => {
-        Item.findByPk(id)
-            .then(item => {
-                if (item) {
-                    resolve(item);
-                } else {
-                    reject('Item not found');
-                }
-            })
-            .catch(err => reject('Error retrieving item by ID: ' + err.message));
-    });
+    return Item.findByPk(id)
+        .then(item => {
+            if (item) {
+                return item;
+            } else {
+                throw new Error('Item not found');
+            }
+        })
+        .catch(err => { throw new Error('Error retrieving item by ID: ' + err.message); });
 };
 
 // Add a new item
 module.exports.addItem = (itemData) => {
-    return new Promise((resolve, reject) => {
-        // Ensure published is a boolean
-        itemData.published = itemData.published ? true : false;
+    // Ensure published is a boolean
+    itemData.published = itemData.published ? true : false;
 
-        // Replace blank values with null
-        for (let key in itemData) {
-            if (itemData[key] === "") {
-                itemData[key] = null;
-            }
+    // Replace blank values with null
+    Object.keys(itemData).forEach(key => {
+        if (itemData[key] === "") {
+            itemData[key] = null;
         }
-
-        // Set postDate to current date
-        itemData.postDate = new Date();
-
-        Item.create(itemData)
-            .then(item => resolve(item)) // Successfully created
-            .catch(err => reject('Unable to create item: ' + err.message));
     });
+
+    // Set postDate to current date
+    itemData.postDate = new Date();
+
+    return Item.create(itemData)
+        .then(item => item)
+        .catch(err => { throw new Error('Unable to create item: ' + err.message); });
 };
 
 // Get published items
 module.exports.getPublishedItems = () => {
-    return new Promise((resolve, reject) => {
-        Item.findAll({ where: { published: true } })
-            .then(items => {
-                if (items && items.length) {
-                    resolve(items);
-                } else {
-                    reject('No published items found');
-                }
-            })
-            .catch(err => reject('Error retrieving published items: ' + err.message));
-    });
+    return Item.findAll({ where: { published: true } })
+        .then(items => {
+            if (items && items.length) {
+                return items;
+            } else {
+                throw new Error('No published items found');
+            }
+        })
+        .catch(err => { throw new Error('Error retrieving published items: ' + err.message); });
 };
 
 // Get published items by category
 module.exports.getPublishedItemsByCategory = (categoryId) => {
-    return new Promise((resolve, reject) => {
-        Item.findAll({
-            where: {
-                published: true,
-                categoryId: categoryId
-            }
-        })
-            .then(items => {
-                if (items && items.length) {
-                    resolve(items);
-                } else {
-                    reject('No published items found for this category');
-                }
-            })
-            .catch(err => reject('Error retrieving published items by category: ' + err.message));
-    });
+    return Item.findAll({
+        where: {
+            published: true,
+            categoryId: categoryId
+        }
+    })
+    .then(items => {
+        if (items && items.length) {
+            return items;
+        } else {
+            throw new Error('No published items found for this category');
+        }
+    })
+    .catch(err => { throw new Error('Error retrieving published items by category: ' + err.message); });
 };
 
 // Get all categories
 module.exports.getCategories = () => {
-    return new Promise((resolve, reject) => {
-        Category.findAll()
-            .then(categories => {
-                if (categories && categories.length) {
-                    resolve(categories);
-                } else {
-                    reject('No categories found');
-                }
-            })
-            .catch(err => reject('Error retrieving categories: ' + err.message));
-    });
+    return Category.findAll()
+        .then(categories => {
+            if (categories && categories.length) {
+                return categories;
+            } else {
+                throw new Error('No categories found');
+            }
+        })
+        .catch(err => { throw new Error('Error retrieving categories: ' + err.message); });
 };
 
 // Add a new category
 module.exports.addCategory = (categoryData) => {
-    return new Promise((resolve, reject) => {
-        // Replace blank values with null
-        categoryData.name = categoryData.name || null;
-        categoryData.description = categoryData.description || null;
+    // Replace blank values with null
+    categoryData.name = categoryData.name || null;
+    categoryData.description = categoryData.description || null;
 
-        Category.create(categoryData)
-            .then(() => resolve()) // Successfully created
-            .catch(err => reject('Unable to create category: ' + err.message));
-    });
+    return Category.create(categoryData)
+        .then(() => true) // Successfully created
+        .catch(err => { throw new Error('Unable to create category: ' + err.message); });
 };
 
 // Delete a category by ID
 module.exports.deleteCategoryById = (id) => {
-    return new Promise((resolve, reject) => {
-        Category.destroy({
-            where: { id: id }
-        })
-            .then(result => {
-                if (result === 0) {
-                    reject('Category not found or already deleted');
-                } else {
-                    resolve(); // Successfully deleted
-                }
-            })
-            .catch(err => reject('Unable to delete category: ' + err.message));
-    });
+    return Category.destroy({
+        where: { id: id }
+    })
+    .then(result => {
+        if (result === 0) {
+            throw new Error('Category not found or already deleted');
+        } else {
+            return true; // Successfully deleted
+        }
+    })
+    .catch(err => { throw new Error('Unable to delete category: ' + err.message); });
 };
 
 // Delete an item by ID
 module.exports.deleteItemById = (id) => {
-    return new Promise((resolve, reject) => {
-        Item.destroy({
-            where: { id: id }
-        })
-            .then(result => {
-                if (result === 0) {
-                    reject('Item not found or already deleted');
-                } else {
-                    resolve(); // Successfully deleted
-                }
-            })
-            .catch(err => reject('Unable to delete item: ' + err.message));
-    });
+    return Item.destroy({
+        where: { id: id }
+    })
+    .then(result => {
+        if (result === 0) {
+            throw new Error('Item not found or already deleted');
+        } else {
+            return true; // Successfully deleted
+        }
+    })
+    .catch(err => { throw new Error('Unable to delete item: ' + err.message); });
 };

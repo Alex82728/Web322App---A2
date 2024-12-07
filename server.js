@@ -36,7 +36,9 @@ const hbs = exphbs.create({
     extname: '.hbs',
     helpers: {
         navLink: function (url, options) {
-            return `<li class="nav-item${(url == app.locals.activeRoute ? ' active' : '')}"><a class="nav-link" href="${url}">${options.fn(this)}</a></li>`;
+            return `<li class="nav-item${(url == app.locals.activeRoute ? ' active' : '')}">
+                        <a class="nav-link" href="${url}">${options.fn(this)}</a>
+                    </li>`;
         },
         equal: function (lvalue, rvalue, options) {
             if (lvalue != rvalue) {
@@ -56,8 +58,8 @@ const hbs = exphbs.create({
         }
     },
     runtimeOptions: {
-        allowProtoPropertiesByDefault: true,
-        allowProtoMethodsByDefault: true
+        allowProtoPropertiesByDefault: true,  // Allow access to prototype properties
+        allowProtoMethodsByDefault: true      // Allow access to prototype methods
     }
 });
 
@@ -77,7 +79,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
-
 // Home Route
 app.get('/', (req, res) => {
     res.render('home', { title: "Motorcycle Shop", activeRoute: req.path });
@@ -102,10 +103,31 @@ app.get('/items/add', async (req, res) => {
         res.render('addItem', { 
             title: "Add New Item", 
             categories: [], 
-            activeRoute: req.path,
-            errors: { general: "Error fetching categories." }
+            activeRoute: req.path 
         });
     }
+});
+
+// Add Category Route (GET)
+app.get('/categories/add', (req, res) => {
+    res.render('addCategory', { title: "Add New Category", activeRoute: req.path });
+});
+
+// Add Category Route (POST)
+app.post('/categories/add', (req, res) => {
+    const newCategory = {
+        name: req.body.name,
+        description: req.body.description
+    };
+
+    storeService.addCategory(newCategory)
+        .then(() => {
+            res.redirect('/categories');
+        })
+        .catch((err) => {
+            console.error("Error adding category:", err);
+            res.status(500).send("Unable to add category.");
+        });
 });
 
 // Shop Route (Display Published Items, Filtered by Category if Query Present)
@@ -115,6 +137,7 @@ app.get('/shop', async (req, res) => {
     try {
         let items = [];
 
+        // If there's a "category" query, filter the returned items by category
         if (req.query.category) {
             items = await storeService.getPublishedItemsByCategory(req.query.category);
         } else {
@@ -125,6 +148,7 @@ app.get('/shop', async (req, res) => {
             viewData.message = "No items found.";
         }
 
+        // Sort the published items by itemDate (newest to oldest)
         items.sort((a, b) => new Date(b.itemDate) - new Date(a.itemDate));
 
         let latestItem = items[0];
@@ -146,107 +170,156 @@ app.get('/shop', async (req, res) => {
     res.render('shop', { data: viewData });
 });
 
-// Add Item (POST route with Image Upload)
-app.post('/items/add', upload.single("featureImage"), (req, res) => {
-    let errors = {};
-    let hasError = false;
+// Category-specific Items Route
+app.get('/shop/category/:categoryId', async (req, res) => {
+    const { categoryId } = req.params;
+    let viewData = {};
 
-    // Validate fields
-    if (!req.body.name || req.body.name.trim().length === 0) {
-        errors.name = "Item name is required.";
-        hasError = true;
-    }
-    if (!req.body.categoryId) {
-        errors.categoryId = "Category is required.";
-        hasError = true;
-    }
-    if (!req.body.price || isNaN(req.body.price) || parseFloat(req.body.price) <= 0) {
-        errors.price = "Please enter a valid price.";
-        hasError = true;
-    }
-    if (!req.body.description || req.body.description.trim().length === 0) {
-        errors.description = "Description is required.";
-        hasError = true;
-    }
-    if (!req.file) {
-        errors.featureImage = "Feature image is required.";
-        hasError = true;
-    }
-
-    if (hasError) {
-        storeService.getCategories()
-            .then((categories) => {
-                res.render('addItem', {
-                    title: "Add New Item",
-                    categories: categories,
-                    errors: errors,
-                    name: req.body.name,
-                    categoryId: req.body.categoryId,
-                    price: req.body.price,
-                    description: req.body.description,
-                    published: req.body.published === 'true'
-                });
-            })
-            .catch((err) => {
-                console.error("Error fetching categories for add item:", err);
-                res.status(500).send("Unable to fetch categories.");
-            });
-    } else {
-        // Upload image to Cloudinary
-        const fileType = req.file.mimetype.split('/')[0];
-        if (fileType !== 'image') {
-            errors.featureImage = "Only image files are allowed.";
-            return res.render('addItem', {
-                title: "Add New Item",
-                categories: [],
-                errors: errors,
-                name: req.body.name,
-                categoryId: req.body.categoryId,
-                price: req.body.price,
-                description: req.body.description,
-                published: req.body.published === 'true'
-            });
+    try {
+        // Fetch items for the selected category
+        let items = await storeService.getItemsByCategory(categoryId);
+        
+        if (items.length === 0) {
+            viewData.message = "No items found in this category.";
         }
 
-        let streamUpload = (req) => {
-            return new Promise((resolve, reject) => {
-                let stream = cloudinary.uploader.upload_stream(
-                    (error, result) => {
-                        if (result) {
-                            resolve(result);
-                        } else {
-                            reject(error);
-                        }
-                    }
-                );
-                streamifier.createReadStream(req.file.buffer).pipe(stream);
-            });
-        };
-
-        streamUpload(req)
-            .then((result) => {
-                const newItem = {
-                    id: 0,
-                    featureImage: result.secure_url,
-                    published: req.body.published === 'true',
-                    postDate: new Date(),
-                    ...req.body
-                };
-
-                storeService.addItem(newItem)
-                    .then(() => {
-                        res.redirect('/shop');
-                    })
-                    .catch((err) => {
-                        console.error("Error adding item:", err);
-                        res.status(500).send("Unable to add item.");
-                    });
-            })
-            .catch((error) => {
-                console.error("Cloudinary upload error:", error);
-                res.status(500).send("Cloudinary upload error.");
-            });
+        items.sort((a, b) => new Date(b.itemDate) - new Date(a.itemDate));
+        
+        viewData.items = items;
+    } catch (err) {
+        viewData.message = "Error fetching items for this category.";
+        console.error("Error fetching items for category:", err);
     }
+
+    try {
+        let categories = await storeService.getCategories();
+        viewData.categories = categories;
+    } catch (err) {
+        viewData.categoriesMessage = "No categories available.";
+        console.error("Error fetching categories:", err);
+    }
+
+    res.render('shop', { data: viewData });
+});
+
+// Categories Route
+app.get('/categories', (req, res) => {
+    storeService.getCategories()
+        .then((data) => {
+            if (data.length === 0) {
+                res.render('categories', { title: "Categories", message: "No categories available", activeRoute: req.path });
+            } else {
+                res.render('categories', { title: "Categories", categories: data, activeRoute: req.path });
+            }
+        })
+        .catch((err) => {
+            console.error("Error retrieving categories:", err);
+            res.render('categories', { title: "Categories", message: "Error retrieving categories", activeRoute: req.path });
+        });
+});
+
+// Delete Item
+app.delete('/items/:id', (req, res) => {
+    const itemId = req.params.id;
+
+    storeService.deleteItem(itemId)
+        .then(() => {
+            res.status(200).json({ message: "Item deleted successfully." });
+        })
+        .catch((err) => {
+            console.error("Error deleting item:", err);
+            res.status(500).send("Unable to delete item.");
+        });
+});
+
+// Delete Category
+app.delete('/categories/:id', (req, res) => {
+    const categoryId = req.params.id;
+
+    storeService.deleteCategory(categoryId)
+        .then(() => {
+            res.status(200).json({ message: "Category deleted successfully." });
+        })
+        .catch((err) => {
+            console.error("Error deleting category:", err);
+            res.status(500).send("Unable to delete category.");
+        });
+});
+
+// Item Details Route (By ID)
+app.get('/shop/:id', (req, res) => {
+    const id = req.params.id;
+    storeService.getItemById(id)
+        .then(async (item) => {
+            try {
+                const category = await storeService.getCategoryById(item.category);  // Corrected property name
+                res.render('itemDetails', { 
+                    title: "Item Details", 
+                    item, 
+                    category: category ? category.name : "Unknown", 
+                    activeRoute: req.path 
+                });
+            } catch (err) {
+                console.error("Error fetching category:", err);
+                res.status(500).send("Error fetching category.");
+            }
+        })
+        .catch((err) => {
+            console.error("Error fetching item details:", err);
+            res.status(404).send("Item not found.");
+        });
+});
+
+// Add Item (POST route with Image Upload)
+app.post('/items/add', upload.single("featureImage"), (req, res) => {
+    // Handle case when no file is uploaded
+    if (!req.file) {
+        return res.status(400).send("No image file uploaded. Please upload an image.");
+    }
+
+    const fileType = req.file.mimetype.split('/')[0];
+    if (fileType !== 'image') {
+        return res.status(400).send("Only image files are allowed.");
+    }
+
+    let streamUpload = (req) => {
+        return new Promise((resolve, reject) => {
+            let stream = cloudinary.uploader.upload_stream(
+                (error, result) => {
+                    if (result) {
+                        resolve(result);
+                    } else {
+                        reject(error);
+                    }
+                }
+            );
+            streamifier.createReadStream(req.file.buffer).pipe(stream);
+        });
+    };
+
+    streamUpload(req)
+        .then((result) => {
+            const newItem = {
+                id: 0,
+                featureImage: result.secure_url,
+                published: req.body.published === 'true',
+                postDate: new Date(),
+                ...req.body
+            };
+
+            storeService.addItem(newItem)
+                .then(() => {
+                    res.redirect('/shop');
+                })
+                .catch((err) => {
+                    console.error("Error adding item:", err);
+                    res.status(500).send("Unable to add item.");
+                });
+        })
+        .catch((error) => {
+            console.error("Cloudinary upload error:", error);
+            res.status(500).send("Cloudinary upload error.");
+        });
 });
 
 app.listen(PORT, () => {

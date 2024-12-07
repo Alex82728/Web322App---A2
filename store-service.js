@@ -14,7 +14,7 @@ cloudinary.config({
 const validatePagination = (page, pageSize) => {
     const validatedPage = Math.max(parseInt(page, 10) || 1, 1);
     const validatedPageSize = Math.max(parseInt(pageSize, 10) || 10, 1);
-    return { validatedPage: Number(validatedPage), validatedPageSize: Number(validatedPageSize) };
+    return { validatedPage, validatedPageSize };
 };
 
 // Get all items with pagination

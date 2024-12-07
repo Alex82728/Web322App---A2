@@ -14,7 +14,7 @@ GitHub Repository URL: https://github.com/Alex82728/Web322App---A2.git
 const express = require('express');
 const path = require('path');
 const exphbs = require('express-handlebars');
-const storeService = require('./store-service');
+const storeService = require('./store-service'); // Make sure you have these methods in store-service.js
 const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
 const streamifier = require('streamifier');
@@ -31,7 +31,7 @@ cloudinary.config({
 
 const upload = multer();
 
-// Define the formatDate helper for Handlebars
+// Set up Handlebars engine
 const hbs = exphbs.create({
     extname: '.hbs',
     helpers: {
@@ -59,7 +59,6 @@ const hbs = exphbs.create({
     }
 });
 
-// Set up Handlebars engine
 app.engine('.hbs', hbs.engine);
 app.set('view engine', '.hbs');
 
@@ -218,8 +217,7 @@ app.get('/shop/:id', (req, res) => {
     storeService.getItemById(id)
         .then(async (item) => {
             try {
-                // Fetch the category associated with the item
-                const category = await storeService.getCategoryById(item.categoryId);
+                const category = await storeService.getCategoryById(item.category);  // Corrected property name
                 res.render('itemDetails', { 
                     title: "Item Details", 
                     item, 
@@ -239,55 +237,70 @@ app.get('/shop/:id', (req, res) => {
 
 // Add Item (POST route with Image Upload)
 app.post('/items/add', upload.single("featureImage"), (req, res) => {
-    if (req.file) {
-        const fileType = req.file.mimetype.split('/')[0];
-        if (fileType !== 'image') {
-            return res.status(400).send("Only image files are allowed.");
-        }
+    // Handle case when no file is uploaded
+    if (!req.file) {
+        return res.status(400).send("No image file uploaded. Please upload an image.");
+    }
 
-        let streamUpload = (req) => {
-            return new Promise((resolve, reject) => {
-                let stream = cloudinary.uploader.upload_stream(
-                    (error, result) => {
-                        if (result) {
-                            resolve(result);
-                        } else {
-                            reject(error);
-                        }
+    const fileType = req.file.mimetype.split('/')[0];
+    if (fileType !== 'image') {
+        return res.status(400).send("Only image files are allowed.");
+    }
+
+    let streamUpload = (req) => {
+        return new Promise((resolve, reject) => {
+            let stream = cloudinary.uploader.upload_stream(
+                (error, result) => {
+                    if (result) {
+                        resolve(result);
+                    } else {
+                        reject(error);
                     }
-                );
-                streamifier.createReadStream(req.file.buffer).pipe(stream);
-            });
-        };
+                }
+            );
+            streamifier.createReadStream(req.file.buffer).pipe(stream);
+        });
+    };
 
-        streamUpload(req)
-            .then((result) => {
-                const newItem = {
-                    id: 0,
-                    featureImage: result.secure_url,
-                    published: req.body.published === 'true',
-                    postDate: new Date(),
-                    ...req.body
-                };
+    streamUpload(req)
+        .then((result) => {
+            const newItem = {
+                id: 0,
+                featureImage: result.secure_url,
+                published: req.body.published === 'true',
+                postDate: new Date(),
+                ...req.body
+            };
 
-                storeService.addItem(newItem)
-                    .then(() => {
-                        res.redirect('/shop');
-                    })
-                    .catch((err) => {
-                        console.error("Error adding item:", err);
-                        res.status(500).send("Unable to add item.");
-                    });
-            })
-            .catch((err) => {
-                console.error("Error uploading image:", err);
-                res.status(500).send("Error uploading image.");
-            });
-    } else {
-        res.status(400).send("No image file uploaded.");
+            storeService.addItem(newItem)
+                .then(() => {
+                    res.redirect('/shop');
+                })
+                .catch((err) => {
+                    console.error("Error adding item:", err);
+                    res.status(500).send("Unable to add item.");
+                });
+        })
+        .catch((error) => {
+            console.error("Cloudinary upload error:", error);
+            res.status(500).send("Error uploading image to Cloudinary.");
+        });
+});
+
+// Route to get all items
+app.get('/items', async (req, res) => {
+    try {
+        let page = parseInt(req.query.page) || 1;
+        let pageSize = parseInt(req.query.pageSize) || 10;
+        let items = await storeService.getAllItems(page, pageSize);
+        res.json(items); // Return all items as JSON
+    } catch (err) {
+        console.error("Error fetching all items:", err);
+        res.status(500).send("Unable to fetch items.");
     }
 });
 
+// Server Setup
 app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`Server is running on http://localhost:${PORT}`);
 });

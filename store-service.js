@@ -1,6 +1,7 @@
 const { Item, Category } = require('./models'); // Assuming you have imported your models from a separate 'models' file
 const { Op } = require('sequelize');
 const cloudinary = require('cloudinary').v2;
+const streamifier = require('streamifier');
 
 // Cloudinary configuration (hardcoded as requested)
 cloudinary.config({
@@ -41,30 +42,6 @@ module.exports.getItemsByCategory = async (categoryId, page = 1, pageSize = 10) 
         }
     } catch (err) {
         throw new Error('Error retrieving items by category: ' + err.message);
-    }
-};
-
-// Get items by minimum date, allowing both min and max dates for more flexibility
-module.exports.getItemsByDateRange = async (minDateStr, maxDateStr = null) => {
-    try {
-        const { gte, lte } = Op;
-        const filter = { postDate: { [gte]: new Date(minDateStr) } };
-        
-        if (maxDateStr) {
-            filter.postDate[lte] = new Date(maxDateStr);
-        }
-
-        const items = await Item.findAll({
-            where: filter
-        });
-
-        if (items && items.length) {
-            return items;
-        } else {
-            throw new Error('No items found for this date range');
-        }
-    } catch (err) {
-        throw new Error('Error retrieving items by date: ' + err.message);
     }
 };
 
@@ -126,7 +103,7 @@ const streamUpload = (imageFile) => {
                 }
             }
         );
-        require('streamifier').createReadStream(imageFile.buffer).pipe(stream);
+        streamifier.createReadStream(imageFile.buffer).pipe(stream);
     });
 };
 

@@ -1,28 +1,31 @@
-const { Item, Category } = require('./models'); // Assuming you have imported your models from a separate 'models' file
+const { Item, Category } = require('./models');
 const { Op } = require('sequelize');
 const cloudinary = require('cloudinary').v2;
 const streamifier = require('streamifier');
 
-// Cloudinary configuration (hardcoded as requested)
+// Cloudinary configuration
 cloudinary.config({
-  cloud_name: 'dwdftakvt',  // Replace with your Cloudinary cloud name
-  api_key: '162258875171715',  // Replace with your Cloudinary API key
-  api_secret: 'koJ8QmofWIKO9jU-f29ym0q6Daw'  // Replace with your Cloudinary API secret
+  cloud_name: 'dwdftakvt',
+  api_key: '162258875171715',
+  api_secret: 'koJ8QmofWIKO9jU-f29ym0q6Daw'
 });
 
 // Get all items with pagination
 module.exports.getAllItems = async (page = 1, pageSize = 10) => {
     try {
+        console.log(`Fetching all items - page: ${page}, pageSize: ${pageSize}`);
         const items = await Item.findAll({
             limit: pageSize,
             offset: (page - 1) * pageSize
         });
+        console.log('Items fetched:', items);
         if (items && items.length) {
             return items;
         } else {
             throw new Error('No items found');
         }
     } catch (err) {
+        console.error('Error retrieving items:', err);
         throw new Error('Error retrieving items: ' + err.message);
     }
 };
@@ -30,17 +33,20 @@ module.exports.getAllItems = async (page = 1, pageSize = 10) => {
 // Get items by category
 module.exports.getItemsByCategory = async (categoryId, page = 1, pageSize = 10) => {
     try {
+        console.log(`Fetching items for category ${categoryId} - page: ${page}, pageSize: ${pageSize}`);
         const items = await Item.findAll({
             where: { categoryId },
             limit: pageSize,
             offset: (page - 1) * pageSize
         });
+        console.log('Items fetched:', items);
         if (items && items.length) {
             return items;
         } else {
             throw new Error('No items found for this category');
         }
     } catch (err) {
+        console.error('Error retrieving items by category:', err);
         throw new Error('Error retrieving items by category: ' + err.message);
     }
 };
@@ -48,13 +54,16 @@ module.exports.getItemsByCategory = async (categoryId, page = 1, pageSize = 10) 
 // Get item by ID
 module.exports.getItemById = async (id) => {
     try {
+        console.log(`Fetching item by ID: ${id}`);
         const item = await Item.findByPk(id);
+        console.log('Item fetched:', item);
         if (item) {
             return item;
         } else {
             throw new Error('Item not found');
         }
     } catch (err) {
+        console.error('Error retrieving item by ID:', err);
         throw new Error('Error retrieving item by ID: ' + err.message);
     }
 };
@@ -62,6 +71,8 @@ module.exports.getItemById = async (id) => {
 // Add a new item with Cloudinary image upload
 module.exports.addItem = async (itemData, imageFile) => {
     try {
+        console.log('Adding new item with data:', itemData);
+        
         // Ensure published is a boolean
         itemData.published = itemData.published ? true : false;
 
@@ -85,8 +96,10 @@ module.exports.addItem = async (itemData, imageFile) => {
 
         itemData.postDate = new Date();
         const newItem = await Item.create(itemData);
+        console.log('New item added:', newItem);
         return newItem;
     } catch (err) {
+        console.error('Error adding item:', err);
         throw new Error('Unable to create item: ' + err.message);
     }
 };
@@ -110,17 +123,20 @@ const streamUpload = (imageFile) => {
 // Get published items with pagination
 module.exports.getPublishedItems = async (page = 1, pageSize = 10) => {
     try {
+        console.log(`Fetching published items - page: ${page}, pageSize: ${pageSize}`);
         const items = await Item.findAll({
             where: { published: true },
             limit: pageSize,
             offset: (page - 1) * pageSize
         });
+        console.log('Published items fetched:', items);
         if (items && items.length) {
             return items;
         } else {
             throw new Error('No published items found');
         }
     } catch (err) {
+        console.error('Error retrieving published items:', err);
         throw new Error('Error retrieving published items: ' + err.message);
     }
 };
@@ -128,6 +144,7 @@ module.exports.getPublishedItems = async (page = 1, pageSize = 10) => {
 // Get published items by category with pagination
 module.exports.getPublishedItemsByCategory = async (categoryId, page = 1, pageSize = 10) => {
     try {
+        console.log(`Fetching published items for category ${categoryId} - page: ${page}, pageSize: ${pageSize}`);
         const items = await Item.findAll({
             where: {
                 published: true,
@@ -136,12 +153,14 @@ module.exports.getPublishedItemsByCategory = async (categoryId, page = 1, pageSi
             limit: pageSize,
             offset: (page - 1) * pageSize
         });
+        console.log('Published items by category fetched:', items);
         if (items && items.length) {
             return items;
         } else {
             throw new Error('No published items found for this category');
         }
     } catch (err) {
+        console.error('Error retrieving published items by category:', err);
         throw new Error('Error retrieving published items by category: ' + err.message);
     }
 };
@@ -149,13 +168,16 @@ module.exports.getPublishedItemsByCategory = async (categoryId, page = 1, pageSi
 // Get all categories
 module.exports.getCategories = async () => {
     try {
+        console.log('Fetching all categories');
         const categories = await Category.findAll();
+        console.log('Categories fetched:', categories);
         if (categories && categories.length) {
             return categories;
         } else {
             throw new Error('No categories found');
         }
     } catch (err) {
+        console.error('Error retrieving categories:', err);
         throw new Error('Error retrieving categories: ' + err.message);
     }
 };
@@ -163,11 +185,14 @@ module.exports.getCategories = async () => {
 // Add a new category
 module.exports.addCategory = async (categoryData) => {
     try {
+        console.log('Adding new category with data:', categoryData);
         categoryData.name = categoryData.name || null;
         categoryData.description = categoryData.description || null;
 
         await Category.create(categoryData);
+        console.log('Category added successfully');
     } catch (err) {
+        console.error('Error adding category:', err);
         throw new Error('Unable to create category: ' + err.message);
     }
 };
@@ -175,8 +200,9 @@ module.exports.addCategory = async (categoryData) => {
 // Delete a category by ID, checking for dependencies
 module.exports.deleteCategoryById = async (id) => {
     try {
-        // Check for items that depend on this category before deletion
+        console.log(`Deleting category by ID: ${id}`);
         const items = await Item.findAll({ where: { categoryId: id } });
+        console.log('Items linked to category:', items);
         if (items.length) {
             throw new Error('Cannot delete category. Items are still linked to it.');
         }
@@ -185,7 +211,9 @@ module.exports.deleteCategoryById = async (id) => {
         if (result === 0) {
             throw new Error('Category not found or already deleted');
         }
+        console.log('Category deleted successfully');
     } catch (err) {
+        console.error('Error deleting category:', err);
         throw new Error('Unable to delete category: ' + err.message);
     }
 };
@@ -193,11 +221,14 @@ module.exports.deleteCategoryById = async (id) => {
 // Delete an item by ID
 module.exports.deleteItemById = async (id) => {
     try {
+        console.log(`Deleting item by ID: ${id}`);
         const result = await Item.destroy({ where: { id } });
         if (result === 0) {
             throw new Error('Item not found or already deleted');
         }
+        console.log('Item deleted successfully');
     } catch (err) {
+        console.error('Error deleting item:', err);
         throw new Error('Unable to delete item: ' + err.message);
     }
 };

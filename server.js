@@ -11,6 +11,7 @@ Date: 2024/10/08
 Render App URL: https://web322app-a2-1.onrender.com
 GitHub Repository URL: https://github.com/Alex82728/Web322App---A2.git
 ********************************************************************************/ 
+
 const express = require('express');
 const path = require('path');
 const exphbs = require('express-handlebars');
@@ -51,10 +52,21 @@ const hbs = exphbs.create({
             return a === b;
         },
         formatDate: function(dateObj) {
-            let year = dateObj.getFullYear();
-            let month = (dateObj.getMonth() + 1).toString();
-            let day = dateObj.getDate().toString();
-            return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+            if (dateObj && Object.prototype.toString.call(dateObj) === '[object Date]' && !isNaN(dateObj)) {
+                let year = dateObj.getFullYear();
+                let month = (dateObj.getMonth() + 1).toString();
+                let day = dateObj.getDate().toString();
+                return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+            } else {
+                return "Invalid Date";
+            }
+        },
+        // New formatPrice helper
+        formatPrice: function(price) {
+            if (typeof price === 'number') {
+                return price.toFixed(2); // Format the price to two decimal places
+            }
+            return "0.00"; // Default in case price is not a number
         }
     },
     runtimeOptions: {
@@ -79,17 +91,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
-// Home Route
 app.get('/', (req, res) => {
     res.render('home', { title: "Motorcycle Shop", activeRoute: req.path });
 });
 
-// About Route
 app.get('/about', (req, res) => {
     res.render('about', { title: "About Us", activeRoute: req.path });
 });
 
-// Add Item Route (GET)
 app.get('/items/add', async (req, res) => {
     try {
         let categories = await storeService.getCategories();
@@ -108,12 +117,10 @@ app.get('/items/add', async (req, res) => {
     }
 });
 
-// Add Category Route (GET)
 app.get('/categories/add', (req, res) => {
     res.render('addCategory', { title: "Add New Category", activeRoute: req.path });
 });
 
-// Add Category Route (POST)
 app.post('/categories/add', (req, res) => {
     const newCategory = {
         name: req.body.name,
@@ -136,19 +143,23 @@ app.get('/shop', async (req, res) => {
 
     try {
         let items = [];
+        const page = req.query.page || 1;
+        const pageSize = req.query.pageSize || 10;
+        const validatedPage = parseInt(page);
+        const validatedPageSize = parseInt(pageSize);
 
-        // If there's a "category" query, filter the returned items by category
+        console.log(`Fetching items - Page: ${validatedPage}, PageSize: ${validatedPageSize}`);
+
         if (req.query.category) {
-            items = await storeService.getPublishedItemsByCategory(req.query.category);
+            items = await storeService.getPublishedItemsByCategory(req.query.category, validatedPage, validatedPageSize);
         } else {
-            items = await storeService.getPublishedItems();
+            items = await storeService.getPublishedItems(validatedPage, validatedPageSize);
         }
 
         if (items.length === 0) {
             viewData.message = "No items found.";
         }
 
-        // Sort the published items by itemDate (newest to oldest)
         items.sort((a, b) => new Date(b.itemDate) - new Date(a.itemDate));
 
         let latestItem = items[0];
@@ -176,7 +187,6 @@ app.get('/shop/category/:categoryId', async (req, res) => {
     let viewData = {};
 
     try {
-        // Fetch items for the selected category
         let items = await storeService.getItemsByCategory(categoryId);
         
         if (items.length === 0) {
@@ -202,7 +212,6 @@ app.get('/shop/category/:categoryId', async (req, res) => {
     res.render('shop', { data: viewData });
 });
 
-// Categories Route
 app.get('/categories', (req, res) => {
     storeService.getCategories()
         .then((data) => {
@@ -218,7 +227,6 @@ app.get('/categories', (req, res) => {
         });
 });
 
-// Delete Item
 app.delete('/items/:id', (req, res) => {
     const itemId = req.params.id;
 
@@ -232,7 +240,6 @@ app.delete('/items/:id', (req, res) => {
         });
 });
 
-// Delete Category
 app.delete('/categories/:id', (req, res) => {
     const categoryId = req.params.id;
 
@@ -246,13 +253,12 @@ app.delete('/categories/:id', (req, res) => {
         });
 });
 
-// Item Details Route (By ID)
 app.get('/shop/:id', (req, res) => {
     const id = req.params.id;
     storeService.getItemById(id)
         .then(async (item) => {
             try {
-                const category = await storeService.getCategoryById(item.category);  // Corrected property name
+                const category = await storeService.getCategoryById(item.category);
                 res.render('itemDetails', { 
                     title: "Item Details", 
                     item, 
@@ -270,9 +276,7 @@ app.get('/shop/:id', (req, res) => {
         });
 });
 
-// Add Item (POST route with Image Upload)
 app.post('/items/add', upload.single("featureImage"), (req, res) => {
-    // Handle case when no file is uploaded
     if (!req.file) {
         return res.status(400).send("No image file uploaded. Please upload an image.");
     }
@@ -318,10 +322,10 @@ app.post('/items/add', upload.single("featureImage"), (req, res) => {
         })
         .catch((error) => {
             console.error("Cloudinary upload error:", error);
-            res.status(500).send("Cloudinary upload error.");
+            res.status(500).send("Image upload failed.");
         });
 });
 
 app.listen(PORT, () => {
-    console.log(`Server started on http://localhost:${PORT}`);
+    console.log(`Server is running on http://localhost:${PORT}`);
 });

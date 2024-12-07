@@ -2,10 +2,20 @@ const { Item, Category } = require('./models'); // Assuming you have imported yo
 const { Op } = require('sequelize');
 const cloudinary = require('cloudinary').v2;
 
-// Get all items
-module.exports.getAllItems = async () => {
+// Cloudinary configuration (hardcoded as requested)
+cloudinary.config({
+  cloud_name: 'dwdftakvt',  // Replace with your Cloudinary cloud name
+  api_key: '162258875171715',  // Replace with your Cloudinary API key
+  api_secret: 'koJ8QmofWIKO9jU-f29ym0q6Daw'  // Replace with your Cloudinary API secret
+});
+
+// Get all items with pagination
+module.exports.getAllItems = async (page = 1, pageSize = 10) => {
     try {
-        const items = await Item.findAll();
+        const items = await Item.findAll({
+            limit: pageSize,
+            offset: (page - 1) * pageSize
+        });
         if (items && items.length) {
             return items;
         } else {
@@ -17,9 +27,13 @@ module.exports.getAllItems = async () => {
 };
 
 // Get items by category
-module.exports.getItemsByCategory = async (categoryId) => {
+module.exports.getItemsByCategory = async (categoryId, page = 1, pageSize = 10) => {
     try {
-        const items = await Item.findAll({ where: { categoryId } });
+        const items = await Item.findAll({
+            where: { categoryId },
+            limit: pageSize,
+            offset: (page - 1) * pageSize
+        });
         if (items && items.length) {
             return items;
         } else {
@@ -30,21 +44,24 @@ module.exports.getItemsByCategory = async (categoryId) => {
     }
 };
 
-// Get items by minimum date
-module.exports.getItemsByMinDate = async (minDateStr) => {
+// Get items by minimum date, allowing both min and max dates for more flexibility
+module.exports.getItemsByDateRange = async (minDateStr, maxDateStr = null) => {
     try {
-        const { gte } = Op;
+        const { gte, lte } = Op;
+        const filter = { postDate: { [gte]: new Date(minDateStr) } };
+        
+        if (maxDateStr) {
+            filter.postDate[lte] = new Date(maxDateStr);
+        }
+
         const items = await Item.findAll({
-            where: {
-                postDate: {
-                    [gte]: new Date(minDateStr)
-                }
-            }
+            where: filter
         });
+
         if (items && items.length) {
             return items;
         } else {
-            throw new Error('No items found after this date');
+            throw new Error('No items found for this date range');
         }
     } catch (err) {
         throw new Error('Error retrieving items by date: ' + err.message);
@@ -65,7 +82,7 @@ module.exports.getItemById = async (id) => {
     }
 };
 
-// Add a new item (with Cloudinary image upload)
+// Add a new item with Cloudinary image upload
 module.exports.addItem = async (itemData, imageFile) => {
     try {
         // Ensure published is a boolean
@@ -113,10 +130,14 @@ const streamUpload = (imageFile) => {
     });
 };
 
-// Get published items
-module.exports.getPublishedItems = async () => {
+// Get published items with pagination
+module.exports.getPublishedItems = async (page = 1, pageSize = 10) => {
     try {
-        const items = await Item.findAll({ where: { published: true } });
+        const items = await Item.findAll({
+            where: { published: true },
+            limit: pageSize,
+            offset: (page - 1) * pageSize
+        });
         if (items && items.length) {
             return items;
         } else {
@@ -127,14 +148,16 @@ module.exports.getPublishedItems = async () => {
     }
 };
 
-// Get published items by category
-module.exports.getPublishedItemsByCategory = async (categoryId) => {
+// Get published items by category with pagination
+module.exports.getPublishedItemsByCategory = async (categoryId, page = 1, pageSize = 10) => {
     try {
         const items = await Item.findAll({
             where: {
                 published: true,
                 categoryId
-            }
+            },
+            limit: pageSize,
+            offset: (page - 1) * pageSize
         });
         if (items && items.length) {
             return items;
@@ -172,9 +195,15 @@ module.exports.addCategory = async (categoryData) => {
     }
 };
 
-// Delete a category by ID
+// Delete a category by ID, checking for dependencies
 module.exports.deleteCategoryById = async (id) => {
     try {
+        // Check for items that depend on this category before deletion
+        const items = await Item.findAll({ where: { categoryId: id } });
+        if (items.length) {
+            throw new Error('Cannot delete category. Items are still linked to it.');
+        }
+
         const result = await Category.destroy({ where: { id } });
         if (result === 0) {
             throw new Error('Category not found or already deleted');

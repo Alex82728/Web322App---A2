@@ -27,7 +27,7 @@ module.exports.getAllItems = async (page = 1, pageSize = 10) => {
       limit: validatedPageSize,  // Pagination
       include: {
         model: Category,
-        attributes: ['name']  // Include the category name
+        attributes: ['name'],  // Include the category name
       }
     });
 
@@ -60,7 +60,7 @@ module.exports.getItemsByCategory = async (categoryId, page = 1, pageSize = 10) 
       limit: validatedPageSize,  // Pagination
       include: {
         model: Category,
-        attributes: ['name']  // Include category name
+        attributes: ['name'],  // Include category name
       }
     });
 
@@ -83,7 +83,7 @@ module.exports.getItemById = async (id) => {
     const item = await Item.findByPk(id, {
       include: {
         model: Category,
-        attributes: ['name']  // Include category name
+        attributes: ['name'],  // Include category name
       }
     });
 
@@ -163,7 +163,7 @@ module.exports.getPublishedItems = async (page = 1, pageSize = 10) => {
       limit: validatedPageSize,  // Pagination
       include: {
         model: Category,
-        attributes: ['name']  // Include category name
+        attributes: ['name'],  // Include category name
       }
     });
 
@@ -191,7 +191,7 @@ module.exports.getPublishedItemsByCategory = async (categoryId, page = 1, pageSi
       limit: validatedPageSize,  // Pagination
       include: {
         model: Category,
-        attributes: ['name']  // Include category name
+        attributes: ['name'],  // Include category name
       }
     });
 

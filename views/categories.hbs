@@ -28,6 +28,7 @@
                                     <td><a href="/items?category={{this.id}}">{{this.id}}</a></td>
                                     <td><a href="/items?category={{this.id}}">{{this.name}}</a></td>
                                     <td>
+                                        <!-- Deletion form with POST method -->
                                         <form action="/categories/delete/{{this.id}}" method="POST" class="d-inline">
                                             <button type="submit" class="btn btn-danger btn-sm">Remove</button>
                                         </form>

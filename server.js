@@ -11,8 +11,6 @@ Date: 2024/10/08
 Render App URL: https://web322app-a2-1.onrender.com
 GitHub Repository URL: https://github.com/Alex82728/Web322App---A2.git
 ********************************************************************************/ 
-
-
 const express = require('express');
 const path = require('path');
 const exphbs = require('express-handlebars');
@@ -26,10 +24,9 @@ const PORT = 8080;
 
 // Cloudinary Configuration
 cloudinary.config({
-    cloud_name: 'dwdftakvt',
-    api_key: '242931154419331',
-    api_secret: 'CJeSPxAcuaHBYV8NpPZSd8aQP4c',
-    secure: true
+  cloud_name: 'dwdftakvt',  // Replace with your Cloudinary cloud name
+  api_key: '162258875171715',  // Replace with your Cloudinary API key
+  api_secret: 'koJ8QmofWIKO9jU-f29ym0q6Daw'  // Replace with your Cloudinary API secret
 });
 
 const upload = multer();
@@ -100,6 +97,7 @@ app.get('/items/add', async (req, res) => {
             activeRoute: req.path 
         });
     } catch (err) {
+        console.error("Error fetching categories for add item:", err);
         res.render('addItem', { 
             title: "Add New Item", 
             categories: [], 
@@ -124,7 +122,8 @@ app.post('/categories/add', (req, res) => {
         .then(() => {
             res.redirect('/categories');
         })
-        .catch(() => {
+        .catch((err) => {
+            console.error("Error adding category:", err);
             res.status(500).send("Unable to add category.");
         });
 });
@@ -155,6 +154,7 @@ app.get('/shop', async (req, res) => {
         viewData.latestItem = latestItem;
     } catch (err) {
         viewData.message = "Error fetching items.";
+        console.error("Error fetching items for shop route:", err);
     }
 
     try {
@@ -162,6 +162,7 @@ app.get('/shop', async (req, res) => {
         viewData.categories = categories;
     } catch (err) {
         viewData.categoriesMessage = "No categories available.";
+        console.error("Error fetching categories for shop route:", err);
     }
 
     res.render('shop', { data: viewData });
@@ -178,6 +179,7 @@ app.get('/categories', (req, res) => {
             }
         })
         .catch((err) => {
+            console.error("Error retrieving categories:", err);
             res.render('categories', { title: "Categories", message: "Error retrieving categories", activeRoute: req.path });
         });
 });
@@ -190,7 +192,8 @@ app.delete('/items/:id', (req, res) => {
         .then(() => {
             res.status(200).json({ message: "Item deleted successfully." });
         })
-        .catch(() => {
+        .catch((err) => {
+            console.error("Error deleting item:", err);
             res.status(500).send("Unable to delete item.");
         });
 });
@@ -203,7 +206,8 @@ app.delete('/categories/:id', (req, res) => {
         .then(() => {
             res.status(200).json({ message: "Category deleted successfully." });
         })
-        .catch(() => {
+        .catch((err) => {
+            console.error("Error deleting category:", err);
             res.status(500).send("Unable to delete category.");
         });
 });
@@ -219,14 +223,16 @@ app.get('/shop/:id', (req, res) => {
                 res.render('itemDetails', { 
                     title: "Item Details", 
                     item, 
-                    category: category.name, 
+                    category: category ? category.name : "Unknown", 
                     activeRoute: req.path 
                 });
             } catch (err) {
+                console.error("Error fetching category:", err);
                 res.status(500).send("Error fetching category.");
             }
         })
         .catch((err) => {
+            console.error("Error fetching item details:", err);
             res.status(404).send("Item not found.");
         });
 });
@@ -268,15 +274,17 @@ app.post('/items/add', upload.single("featureImage"), (req, res) => {
                     .then(() => {
                         res.redirect('/shop');
                     })
-                    .catch(() => {
+                    .catch((err) => {
+                        console.error("Error adding item:", err);
                         res.status(500).send("Unable to add item.");
                     });
             })
-            .catch(() => {
-                res.status(500).send("Image upload failed.");
+            .catch((err) => {
+                console.error("Error uploading image:", err);
+                res.status(500).send("Error uploading image.");
             });
     } else {
-        res.status(400).send("No image file provided.");
+        res.status(400).send("No image file uploaded.");
     }
 });
 

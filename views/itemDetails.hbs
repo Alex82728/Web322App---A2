@@ -19,11 +19,19 @@
 
     <div class="item-details">
         <h2>{{item.name}}</h2>
-        <img src="{{item.featureImage}}" alt="{{item.name}} image" class="item-image">
+        <!-- Ensure the feature image exists before rendering -->
+        {{#if item.featureImage}}
+            <img src="{{item.featureImage}}" alt="{{item.name}} image" class="item-image">
+        {{else}}
+            <p>No image available</p>
+        {{/if}}
+
         <p><strong>Description:</strong> {{item.description}}</p>
         <p><strong>Price:</strong> ${{item.price}}</p>
         <p><strong>Category:</strong> {{category}}</p> <!-- Display category -->
-        <p><strong>Post Date:</strong> {{item.postDate}}</p>
+
+        <!-- Format postDate with the helper function if it's a valid date -->
+        <p><strong>Post Date:</strong> {{#if item.postDate}}{{formatDate item.postDate}}{{else}}Not available{{/if}}</p>
     </div>
 
     <footer>

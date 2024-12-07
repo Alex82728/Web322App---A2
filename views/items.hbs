@@ -1,5 +1,3 @@
-<!-- Items.hbs -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -29,10 +27,13 @@
                 <td>{{this.name}}</td>
                 <td>{{this.category}}</td>
                 <td>{{this.price}}</td>
-                <td>{{this.published}}</td>
+                <td>{{#if this.published}}Yes{{else}}No{{/if}}</td> <!-- Display Yes/No for published -->
                 <td>
                     <!-- Remove button linking to the delete route -->
-                    <a href="/items/delete/{{this.id}}" class="btn btn-danger">Remove</a>
+                    <form action="/items/{{this.id}}" method="POST" style="display:inline;">
+                        <input type="hidden" name="_method" value="DELETE">
+                        <button type="submit" class="btn btn-danger">Remove</button>
+                    </form>
                 </td>
             </tr>
             {{/each}}

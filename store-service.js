@@ -1,4 +1,4 @@
-const { Item, Category } = require('./models'); // Assuming mongoose models
+const { Item, Category, sequelize } = require('./db'); // Assuming Sequelize models
 const cloudinary = require('cloudinary').v2;
 const streamifier = require('streamifier');
 
@@ -22,11 +22,14 @@ module.exports.getAllItems = async (page = 1, pageSize = 10) => {
     const { validatedPage, validatedPageSize } = validatePagination(page, pageSize);
     console.log(`Fetching all items - page: ${validatedPage}, pageSize: ${validatedPageSize}`);
 
-    const items = await Item.find()
-      .skip((validatedPage - 1) * validatedPageSize)  // Pagination
-      .limit(validatedPageSize)  // Pagination
-      .populate('category', 'name')  // Populate the category field with the category name
-      .exec();
+    const items = await Item.findAll({
+      offset: (validatedPage - 1) * validatedPageSize,  // Pagination
+      limit: validatedPageSize,  // Pagination
+      include: {
+        model: Category,
+        attributes: ['name']  // Include the category name
+      }
+    });
 
     if (items.length > 0) {
       console.log('Items fetched:', items);
@@ -51,11 +54,15 @@ module.exports.getItemsByCategory = async (categoryId, page = 1, pageSize = 10) 
     const { validatedPage, validatedPageSize } = validatePagination(page, pageSize);
     console.log(`Fetching items for category ${categoryId} - page: ${validatedPage}, pageSize: ${validatedPageSize}`);
 
-    const items = await Item.find({ category: categoryId })  // Filter by category ID
-      .skip((validatedPage - 1) * validatedPageSize)  // Pagination
-      .limit(validatedPageSize)  // Pagination
-      .populate('category', 'name')  // Populate category field
-      .exec();
+    const items = await Item.findAll({
+      where: { categoryId },
+      offset: (validatedPage - 1) * validatedPageSize,  // Pagination
+      limit: validatedPageSize,  // Pagination
+      include: {
+        model: Category,
+        attributes: ['name']  // Include category name
+      }
+    });
 
     if (items.length > 0) {
       console.log('Items fetched:', items);
@@ -73,9 +80,12 @@ module.exports.getItemsByCategory = async (categoryId, page = 1, pageSize = 10) 
 module.exports.getItemById = async (id) => {
   try {
     console.log(`Fetching item by ID: ${id}`);
-    const item = await Item.findById(id)
-      .populate('category', 'name')  // Populate category field
-      .exec();
+    const item = await Item.findByPk(id, {
+      include: {
+        model: Category,
+        attributes: ['name']  // Include category name
+      }
+    });
 
     if (item) {
       console.log('Item fetched:', item);
@@ -147,11 +157,15 @@ module.exports.getPublishedItems = async (page = 1, pageSize = 10) => {
     const { validatedPage, validatedPageSize } = validatePagination(page, pageSize);
     console.log(`Fetching published items - page: ${validatedPage}, pageSize: ${validatedPageSize}`);
 
-    const items = await Item.find({ published: true })
-      .skip((validatedPage - 1) * validatedPageSize)  // Pagination
-      .limit(validatedPageSize)  // Pagination
-      .populate('category', 'name')  // Populate category field
-      .exec();
+    const items = await Item.findAll({
+      where: { published: true },
+      offset: (validatedPage - 1) * validatedPageSize,  // Pagination
+      limit: validatedPageSize,  // Pagination
+      include: {
+        model: Category,
+        attributes: ['name']  // Include category name
+      }
+    });
 
     if (items.length > 0) {
       console.log('Published items fetched:', items);
@@ -171,11 +185,15 @@ module.exports.getPublishedItemsByCategory = async (categoryId, page = 1, pageSi
     const { validatedPage, validatedPageSize } = validatePagination(page, pageSize);
     console.log(`Fetching published items for category ${categoryId} - page: ${validatedPage}, pageSize: ${validatedPageSize}`);
 
-    const items = await Item.find({ published: true, category: categoryId })
-      .skip((validatedPage - 1) * validatedPageSize)  // Pagination
-      .limit(validatedPageSize)  // Pagination
-      .populate('category', 'name')  // Populate category field
-      .exec();
+    const items = await Item.findAll({
+      where: { published: true, categoryId },
+      offset: (validatedPage - 1) * validatedPageSize,  // Pagination
+      limit: validatedPageSize,  // Pagination
+      include: {
+        model: Category,
+        attributes: ['name']  // Include category name
+      }
+    });
 
     if (items.length > 0) {
       console.log('Published items by category fetched:', items);
@@ -193,7 +211,7 @@ module.exports.getPublishedItemsByCategory = async (categoryId, page = 1, pageSi
 module.exports.getCategories = async () => {
   try {
     console.log('Fetching all categories');
-    const categories = await Category.find();
+    const categories = await Category.findAll();
 
     if (categories.length > 0) {
       console.log('Categories fetched:', categories);
@@ -226,14 +244,14 @@ module.exports.addCategory = async (categoryData) => {
 module.exports.deleteCategoryById = async (id) => {
   try {
     console.log(`Deleting category by ID: ${id}`);
-    const items = await Item.find({ category: id });
+    const items = await Item.findAll({ where: { categoryId: id } });
 
     if (items.length > 0) {
       throw new Error('Cannot delete category. Items are still linked to it.');
     }
 
-    const result = await Category.deleteOne({ _id: id });
-    if (result.deletedCount === 0) {
+    const result = await Category.destroy({ where: { id } });
+    if (result === 0) {
       throw new Error('Category not found or already deleted');
     }
 
@@ -248,9 +266,9 @@ module.exports.deleteCategoryById = async (id) => {
 module.exports.deleteItemById = async (id) => {
   try {
     console.log(`Deleting item by ID: ${id}`);
-    const result = await Item.deleteOne({ _id: id });
+    const result = await Item.destroy({ where: { id } });
 
-    if (result.deletedCount === 0) {
+    if (result === 0) {
       throw new Error('Item not found or already deleted');
     }
 

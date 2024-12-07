@@ -15,7 +15,7 @@ GitHub Repository URL: https://github.com/Alex82728/Web322App---A2.git
 const express = require('express');
 const path = require('path');
 const exphbs = require('express-handlebars');
-const storeService = require('./store-service'); // Ensure these methods are defined in store-service.js
+const db = require('./db');  // Import your PostgreSQL connection
 const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
 const streamifier = require('streamifier');
@@ -98,12 +98,13 @@ app.get('/about', (req, res) => {
     res.render('about', { title: "About Us", activeRoute: req.path });
 });
 
+// Add Item Route
 app.get('/items/add', async (req, res) => {
     try {
-        let categories = await storeService.getCategories();
+        const result = await db.query('SELECT * FROM categories');
         res.render('addItem', { 
             title: "Add New Item", 
-            categories: categories, 
+            categories: result.rows, 
             activeRoute: req.path 
         });
     } catch (err) {
@@ -119,11 +120,11 @@ app.get('/items/add', async (req, res) => {
 // Display all items
 app.get('/items', async (req, res) => {
     try {
-        const items = await storeService.getItems();
-        if (items.length === 0) {
+        const result = await db.query('SELECT * FROM items');
+        if (result.rows.length === 0) {
             res.render('items', { title: "Items", message: "No items found", activeRoute: req.path });
         } else {
-            res.render('items', { title: "Items", items: items, activeRoute: req.path });
+            res.render('items', { title: "Items", items: result.rows, activeRoute: req.path });
         }
     } catch (err) {
         console.error("Error retrieving items:", err);
@@ -131,43 +132,42 @@ app.get('/items', async (req, res) => {
     }
 });
 
+// Add Category Route
 app.get('/categories/add', (req, res) => {
     res.render('addCategory', { title: "Add New Category", activeRoute: req.path });
 });
 
-app.post('/categories/add', (req, res) => {
-    const newCategory = {
-        name: req.body.name,
-        description: req.body.description
-    };
-
-    storeService.addCategory(newCategory)
-        .then(() => {
-            res.redirect('/categories');
-        })
-        .catch((err) => {
-            console.error("Error adding category:", err);
-            res.status(500).send("Unable to add category.");
-        });
+// Add category to database
+app.post('/categories/add', async (req, res) => {
+    const { name, description } = req.body;
+    try {
+        await db.query('INSERT INTO categories (name, description) VALUES ($1, $2)', [name, description]);
+        res.redirect('/categories');
+    } catch (err) {
+        console.error("Error adding category:", err);
+        res.status(500).send("Unable to add category.");
+    }
 });
 
-// Shop Route (Display Published Items, Filtered by Category if Query Present)
+// Shop Route (Display Published Items)
 app.get('/shop', async (req, res) => {
     let viewData = {};
 
     try {
-        let items = [];
         const page = req.query.page || 1;
         const pageSize = req.query.pageSize || 10;
         const validatedPage = parseInt(page);
         const validatedPageSize = parseInt(pageSize);
 
-        console.log(`Fetching items - Page: ${validatedPage}, PageSize: ${validatedPageSize}`);
-
+        let items = [];
         if (req.query.category) {
-            items = await storeService.getPublishedItemsByCategory(req.query.category, validatedPage, validatedPageSize);
+            const result = await db.query('SELECT * FROM items WHERE category = $1 LIMIT $2 OFFSET $3', 
+                [req.query.category, validatedPageSize, (validatedPage - 1) * validatedPageSize]);
+            items = result.rows;
         } else {
-            items = await storeService.getPublishedItems(validatedPage, validatedPageSize);
+            const result = await db.query('SELECT * FROM items LIMIT $1 OFFSET $2', 
+                [validatedPageSize, (validatedPage - 1) * validatedPageSize]);
+            items = result.rows;
         }
 
         if (items.length === 0) {
@@ -185,8 +185,8 @@ app.get('/shop', async (req, res) => {
     }
 
     try {
-        let categories = await storeService.getCategories();
-        viewData.categories = categories;
+        const result = await db.query('SELECT * FROM categories');
+        viewData.categories = result.rows;
     } catch (err) {
         viewData.categoriesMessage = "No categories available.";
         console.error("Error fetching categories for shop route:", err);
@@ -195,101 +195,25 @@ app.get('/shop', async (req, res) => {
     res.render('shop', { data: viewData });
 });
 
-// Category-specific Items Route
-app.get('/shop/category/:categoryId', async (req, res) => {
-    const { categoryId } = req.params;
-    let viewData = {};
-
+// Item-specific Route
+app.get('/shop/:id', async (req, res) => {
+    const { id } = req.params;
     try {
-        let items = await storeService.getItemsByCategory(categoryId);
-        
-        if (items.length === 0) {
-            viewData.message = "No items found in this category.";
-        }
-
-        items.sort((a, b) => new Date(b.itemDate) - new Date(a.itemDate));
-        
-        viewData.items = items;
+        const itemResult = await db.query('SELECT * FROM items WHERE id = $1', [id]);
+        const categoryResult = await db.query('SELECT * FROM categories WHERE id = $1', [itemResult.rows[0].category]);
+        res.render('itemDetails', { 
+            title: "Item Details", 
+            item: itemResult.rows[0], 
+            category: categoryResult.rows[0]?.name || "Unknown", 
+            activeRoute: req.path 
+        });
     } catch (err) {
-        viewData.message = "Error fetching items for this category.";
-        console.error("Error fetching items for category:", err);
+        console.error("Error fetching item details:", err);
+        res.status(500).send("Item not found.");
     }
-
-    try {
-        let categories = await storeService.getCategories();
-        viewData.categories = categories;
-    } catch (err) {
-        viewData.categoriesMessage = "No categories available.";
-        console.error("Error fetching categories:", err);
-    }
-
-    res.render('shop', { data: viewData });
 });
 
-app.get('/categories', (req, res) => {
-    storeService.getCategories()
-        .then((data) => {
-            if (data.length === 0) {
-                res.render('categories', { title: "Categories", message: "No categories available", activeRoute: req.path });
-            } else {
-                res.render('categories', { title: "Categories", categories: data, activeRoute: req.path });
-            }
-        })
-        .catch((err) => {
-            console.error("Error retrieving categories:", err);
-            res.render('categories', { title: "Categories", message: "Error retrieving categories", activeRoute: req.path });
-        });
-});
-
-app.delete('/items/:id', (req, res) => {
-    const itemId = req.params.id;
-
-    storeService.deleteItem(itemId)
-        .then(() => {
-            res.status(200).json({ message: "Item deleted successfully." });
-        })
-        .catch((err) => {
-            console.error("Error deleting item:", err);
-            res.status(500).send("Unable to delete item.");
-        });
-});
-
-app.delete('/categories/:id', (req, res) => {
-    const categoryId = req.params.id;
-
-    storeService.deleteCategory(categoryId)
-        .then(() => {
-            res.status(200).json({ message: "Category deleted successfully." });
-        })
-        .catch((err) => {
-            console.error("Error deleting category:", err);
-            res.status(500).send("Unable to delete category.");
-        });
-});
-
-app.get('/shop/:id', (req, res) => {
-    const id = req.params.id;
-    storeService.getItemById(id)
-        .then(async (item) => {
-            try {
-                const category = await storeService.getCategoryById(item.category);
-                res.render('itemDetails', { 
-                    title: "Item Details", 
-                    item, 
-                    category: category ? category.name : "Unknown", 
-                    activeRoute: req.path 
-                });
-            } catch (err) {
-                console.error("Error fetching category:", err);
-                res.status(500).send("Error fetching category.");
-            }
-        })
-        .catch((err) => {
-            console.error("Error fetching item details:", err);
-            res.status(404).send("Item not found.");
-        });
-});
-
+// Add Item Route (POST)
 app.post('/items/add', upload.single("featureImage"), (req, res) => {
     if (!req.file) {
         return res.status(400).send("No image file uploaded. Please upload an image.");
@@ -318,14 +242,15 @@ app.post('/items/add', upload.single("featureImage"), (req, res) => {
     streamUpload(req)
         .then((result) => {
             const newItem = {
-                id: 0,
                 featureImage: result.secure_url,
                 published: req.body.published === 'true',
                 postDate: new Date(),
                 ...req.body
             };
 
-            storeService.addItem(newItem)
+            // Insert new item into the database
+            db.query('INSERT INTO items (featureImage, published, postDate, name, description, category) VALUES ($1, $2, $3, $4, $5, $6)', 
+                [newItem.featureImage, newItem.published, newItem.postDate, newItem.name, newItem.description, newItem.category])
                 .then(() => {
                     res.redirect('/shop');
                 })

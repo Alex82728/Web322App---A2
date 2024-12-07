@@ -17,6 +17,22 @@
             {{/if}}
         </div>
 
+        <!-- Category Description -->
+        <div class="form-group mb-3">
+            <label for="description">Description</label>
+            <input 
+                type="text" 
+                class="form-control" 
+                id="description" 
+                name="description" 
+                placeholder="Enter category description" 
+                value="{{description}}" 
+                required />
+            {{#if errors.description}}
+                <div class="text-danger">{{errors.description}}</div>
+            {{/if}}
+        </div>
+
         <!-- Submit Button -->
         <button type="submit" class="btn btn-primary">Add Category</button>
     </form>

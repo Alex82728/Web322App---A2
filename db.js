@@ -1,6 +1,6 @@
-const { Sequelize } = require('sequelize');
+const { Sequelize, DataTypes } = require('sequelize');
 
-
+// Create a Sequelize instance with secure connection settings
 const sequelize = new Sequelize({
   dialect: 'postgres',
   host: 'ep-twilight-dust-a5mhlocu.us-east-2.aws.neon.tech',
@@ -8,10 +8,12 @@ const sequelize = new Sequelize({
   password: 'xRJ8MT1jwXdO',
   database: 'SenecaDB',
   port: 5432,
-  ssl: {
-    rejectUnauthorized: false,
+  dialectOptions: {
+    ssl: {
+      rejectUnauthorized: false, // Disable certificate validation if using self-signed certs
+    },
   },
-  logging: false, 
+  logging: false, // Disable query logging for cleaner output
 });
 
 // Test the connection
@@ -24,7 +26,6 @@ sequelize.authenticate()
   });
 
 // Define the Item model (with exact table name)
-const { DataTypes } = require('sequelize');
 const Item = sequelize.define('Item', {
   name: {
     type: DataTypes.STRING,

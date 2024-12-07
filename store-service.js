@@ -12,7 +12,7 @@ cloudinary.config({
 // Utility function to validate pagination parameters
 const validatePagination = (page, pageSize) => {
   const validatedPage = Math.max(parseInt(page, 10) || 1, 1);
-  const validatedPageSize = Math.min(Math.max(parseInt(pageSize, 10) || 10, 1), 100); // Set upper limit for pageSize
+  const validatedPageSize = Math.min(Math.max(parseInt(pageSize, 10) || 30, 1), 100); // Set upper limit for pageSize
   return { validatedPage, validatedPageSize };
 };
 
@@ -152,7 +152,7 @@ const streamUpload = (imageFile) => {
 };
 
 // Get published items with pagination
-module.exports.getPublishedItems = async (page = 1, pageSize = 10) => {
+module.exports.getPublishedItems = async (page = 1, pageSize = 30) => {
   try {
     const { validatedPage, validatedPageSize } = validatePagination(page, pageSize);
     console.log(`Fetching published items - page: ${validatedPage}, pageSize: ${validatedPageSize}`);

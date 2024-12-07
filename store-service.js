@@ -30,7 +30,7 @@ module.exports.getAllItems = async (page = 1, pageSize = 10) => {
         attributes: ['name'],  // Include the category name
       }
     });
-
+  
     if (items.length > 0) {
       console.log('Items fetched:', items);
       return items;

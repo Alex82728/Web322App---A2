@@ -17,36 +17,44 @@
     <main>
         <!-- Categories Dropdown -->
         <h2>Categories</h2>
-        {{#if data.categories && data.categories.length}}
-            <ul>
-                {{#each data.categories}}
-                    <li><a href="/shop?category={{this.name}}">{{this.name}}</a></li>
-                {{/each}}
-            </ul>
+        {{#if data.categories}}
+            {{#if data.categories.length}}
+                <ul>
+                    {{#each data.categories}}
+                        <li><a href="/shop?category={{this.name}}">{{this.name}}</a></li>
+                    {{/each}}
+                </ul>
+            {{else}}
+                <p>No categories available.</p>
+            {{/if}}
         {{else}}
             <p>No categories available.</p>
         {{/if}}
 
         <!-- Items Display -->
         <h2>Items</h2>
-        {{#if data.items && data.items.length}}
-            <ul>
-                {{#each data.items}}
-                    {{#if this.published}}
-                        <li>
-                            <a href="/item/{{this.id}}">
-                                {{#if this.featureImage}}
-                                    <img src="{{this.featureImage}}" alt="{{this.name}}" style="width: 100px; height: auto;" />
-                                {{else}}
-                                    <img src="default-image.jpg" alt="{{this.name}}" style="width: 100px; height: auto;" />
-                                {{/if}}
-                                <p>{{this.name}}</p>
-                                <p>${{this.price}}</p>
-                            </a>
-                        </li>
-                    {{/if}}
-                {{/each}}
-            </ul>
+        {{#if data.items}}
+            {{#if data.items.length}}
+                <ul>
+                    {{#each data.items}}
+                        {{#if this.published}}
+                            <li>
+                                <a href="/item/{{this.id}}">
+                                    {{#if this.featureImage}}
+                                        <img src="{{this.featureImage}}" alt="{{this.name}}" style="width: 100px; height: auto;" />
+                                    {{else}}
+                                        <img src="default-image.jpg" alt="{{this.name}}" style="width: 100px; height: auto;" />
+                                    {{/if}}
+                                    <p>{{this.name}}</p>
+                                    <p>${{this.price}}</p>
+                                </a>
+                            </li>
+                        {{/if}}
+                    {{/each}}
+                </ul>
+            {{else}}
+                <p>No items available.</p>
+            {{/if}}
         {{else}}
             <p>No items available.</p>
         {{/if}}

@@ -1,5 +1,4 @@
-const { Item, Category } = require('./models');
-const { Op } = require('sequelize');
+const { Item, Category } = require('./models'); // Assuming mongoose models
 const cloudinary = require('cloudinary').v2;
 const streamifier = require('streamifier');
 
@@ -17,16 +16,17 @@ const validatePagination = (page, pageSize) => {
   return { validatedPage, validatedPageSize };
 };
 
-// Get all items with pagination
+// Get all items with pagination and include category data
 module.exports.getAllItems = async (page = 1, pageSize = 10) => {
   try {
     const { validatedPage, validatedPageSize } = validatePagination(page, pageSize);
     console.log(`Fetching all items - page: ${validatedPage}, pageSize: ${validatedPageSize}`);
 
-    const items = await Item.findAll({
-      limit: validatedPageSize,
-      offset: (validatedPage - 1) * validatedPageSize,
-    });
+    const items = await Item.find()
+      .skip((validatedPage - 1) * validatedPageSize)  // Pagination
+      .limit(validatedPageSize)  // Pagination
+      .populate('category', 'name')  // Populate the category field with the category name
+      .exec();
 
     if (items.length > 0) {
       console.log('Items fetched:', items);
@@ -40,17 +40,22 @@ module.exports.getAllItems = async (page = 1, pageSize = 10) => {
   }
 };
 
-// Get items by category
+// Alias method for getItems, calling getAllItems
+module.exports.getItems = async (page = 1, pageSize = 10) => {
+  return await module.exports.getAllItems(page, pageSize);
+};
+
+// Get items by category with pagination
 module.exports.getItemsByCategory = async (categoryId, page = 1, pageSize = 10) => {
   try {
     const { validatedPage, validatedPageSize } = validatePagination(page, pageSize);
     console.log(`Fetching items for category ${categoryId} - page: ${validatedPage}, pageSize: ${validatedPageSize}`);
 
-    const items = await Item.findAll({
-      where: { categoryId },
-      limit: validatedPageSize,
-      offset: (validatedPage - 1) * validatedPageSize,
-    });
+    const items = await Item.find({ category: categoryId })  // Filter by category ID
+      .skip((validatedPage - 1) * validatedPageSize)  // Pagination
+      .limit(validatedPageSize)  // Pagination
+      .populate('category', 'name')  // Populate category field
+      .exec();
 
     if (items.length > 0) {
       console.log('Items fetched:', items);
@@ -68,7 +73,9 @@ module.exports.getItemsByCategory = async (categoryId, page = 1, pageSize = 10) 
 module.exports.getItemById = async (id) => {
   try {
     console.log(`Fetching item by ID: ${id}`);
-    const item = await Item.findByPk(id);
+    const item = await Item.findById(id)
+      .populate('category', 'name')  // Populate category field
+      .exec();
 
     if (item) {
       console.log('Item fetched:', item);
@@ -140,11 +147,11 @@ module.exports.getPublishedItems = async (page = 1, pageSize = 10) => {
     const { validatedPage, validatedPageSize } = validatePagination(page, pageSize);
     console.log(`Fetching published items - page: ${validatedPage}, pageSize: ${validatedPageSize}`);
 
-    const items = await Item.findAll({
-      where: { published: true },
-      limit: validatedPageSize,
-      offset: (validatedPage - 1) * validatedPageSize,
-    });
+    const items = await Item.find({ published: true })
+      .skip((validatedPage - 1) * validatedPageSize)  // Pagination
+      .limit(validatedPageSize)  // Pagination
+      .populate('category', 'name')  // Populate category field
+      .exec();
 
     if (items.length > 0) {
       console.log('Published items fetched:', items);
@@ -164,14 +171,11 @@ module.exports.getPublishedItemsByCategory = async (categoryId, page = 1, pageSi
     const { validatedPage, validatedPageSize } = validatePagination(page, pageSize);
     console.log(`Fetching published items for category ${categoryId} - page: ${validatedPage}, pageSize: ${validatedPageSize}`);
 
-    const items = await Item.findAll({
-      where: {
-        published: true,
-        categoryId,
-      },
-      limit: validatedPageSize,
-      offset: (validatedPage - 1) * validatedPageSize,
-    });
+    const items = await Item.find({ published: true, category: categoryId })
+      .skip((validatedPage - 1) * validatedPageSize)  // Pagination
+      .limit(validatedPageSize)  // Pagination
+      .populate('category', 'name')  // Populate category field
+      .exec();
 
     if (items.length > 0) {
       console.log('Published items by category fetched:', items);
@@ -189,7 +193,7 @@ module.exports.getPublishedItemsByCategory = async (categoryId, page = 1, pageSi
 module.exports.getCategories = async () => {
   try {
     console.log('Fetching all categories');
-    const categories = await Category.findAll();
+    const categories = await Category.find();
 
     if (categories.length > 0) {
       console.log('Categories fetched:', categories);
@@ -222,14 +226,14 @@ module.exports.addCategory = async (categoryData) => {
 module.exports.deleteCategoryById = async (id) => {
   try {
     console.log(`Deleting category by ID: ${id}`);
-    const items = await Item.findAll({ where: { categoryId: id } });
+    const items = await Item.find({ category: id });
 
     if (items.length > 0) {
       throw new Error('Cannot delete category. Items are still linked to it.');
     }
 
-    const result = await Category.destroy({ where: { id } });
-    if (result === 0) {
+    const result = await Category.deleteOne({ _id: id });
+    if (result.deletedCount === 0) {
       throw new Error('Category not found or already deleted');
     }
 
@@ -244,9 +248,9 @@ module.exports.deleteCategoryById = async (id) => {
 module.exports.deleteItemById = async (id) => {
   try {
     console.log(`Deleting item by ID: ${id}`);
-    const result = await Item.destroy({ where: { id } });
+    const result = await Item.deleteOne({ _id: id });
 
-    if (result === 0) {
+    if (result.deletedCount === 0) {
       throw new Error('Item not found or already deleted');
     }
 

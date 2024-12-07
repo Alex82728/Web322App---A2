@@ -23,7 +23,7 @@ const streamifier = require('streamifier');
 const app = express();
 const PORT = 8080;
 
-// Cloudinary Configuration
+// Cloudinary Configuration (hardcoded credentials)
 cloudinary.config({
   cloud_name: 'dwdftakvt',  // Replace with your Cloudinary cloud name
   api_key: '162258875171715',  // Replace with your Cloudinary API key
@@ -61,10 +61,9 @@ const hbs = exphbs.create({
                 return "Invalid Date";
             }
         },
-        // New formatPrice helper
         formatPrice: function(price) {
             if (typeof price === 'number') {
-                return price.toFixed(2); // Format the price to two decimal places
+                return price.toFixed(2);
             }
             return "0.00"; // Default in case price is not a number
         }
@@ -114,6 +113,21 @@ app.get('/items/add', async (req, res) => {
             categories: [], 
             activeRoute: req.path 
         });
+    }
+});
+
+// Display all items
+app.get('/items', async (req, res) => {
+    try {
+        const items = await storeService.getItems();
+        if (items.length === 0) {
+            res.render('items', { title: "Items", message: "No items found", activeRoute: req.path });
+        } else {
+            res.render('items', { title: "Items", items: items, activeRoute: req.path });
+        }
+    } catch (err) {
+        console.error("Error retrieving items:", err);
+        res.render('items', { title: "Items", message: "Error retrieving items", activeRoute: req.path });
     }
 });
 

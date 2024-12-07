@@ -14,7 +14,7 @@ GitHub Repository URL: https://github.com/Alex82728/Web322App---A2.git
 const express = require('express');
 const path = require('path');
 const exphbs = require('express-handlebars');
-const storeService = require('./store-service'); // Make sure you have these methods in store-service.js
+const storeService = require('./store-service'); // Ensure these methods are defined in store-service.js
 const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
 const streamifier = require('streamifier');
@@ -289,16 +289,10 @@ app.post('/items/add', upload.single("featureImage"), (req, res) => {
         })
         .catch((error) => {
             console.error("Cloudinary upload error:", error);
-            res.status(500).send("Error uploading image.");
+            res.status(500).send("Cloudinary upload error.");
         });
 });
 
-// Default Route for 404
-app.use((req, res) => {
-    res.status(404).render('404', { title: "Page Not Found", activeRoute: req.path });
-});
-
-// Server start
 app.listen(PORT, () => {
-    console.log(`Server started on port ${PORT}`);
+    console.log(`Server started on http://localhost:${PORT}`);
 });

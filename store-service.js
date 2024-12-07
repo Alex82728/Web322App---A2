@@ -10,14 +10,24 @@ cloudinary.config({
   api_secret: 'koJ8QmofWIKO9jU-f29ym0q6Daw'
 });
 
+// Utility function to validate pagination parameters
+const validatePagination = (page, pageSize) => {
+    const validatedPage = Math.max(parseInt(page, 10) || 1, 1);
+    const validatedPageSize = Math.max(parseInt(pageSize, 10) || 10, 1);
+    return { validatedPage, validatedPageSize };
+};
+
 // Get all items with pagination
 module.exports.getAllItems = async (page = 1, pageSize = 10) => {
     try {
-        console.log(`Fetching all items - page: ${page}, pageSize: ${pageSize}`);
+        const { validatedPage, validatedPageSize } = validatePagination(page, pageSize);
+        console.log(`Fetching all items - page: ${validatedPage}, pageSize: ${validatedPageSize}`);
+
         const items = await Item.findAll({
-            limit: pageSize,
-            offset: (page - 1) * pageSize
+            limit: validatedPageSize,
+            offset: (validatedPage - 1) * validatedPageSize
         });
+
         console.log('Items fetched:', items);
         if (items && items.length) {
             return items;
@@ -33,12 +43,15 @@ module.exports.getAllItems = async (page = 1, pageSize = 10) => {
 // Get items by category
 module.exports.getItemsByCategory = async (categoryId, page = 1, pageSize = 10) => {
     try {
-        console.log(`Fetching items for category ${categoryId} - page: ${page}, pageSize: ${pageSize}`);
+        const { validatedPage, validatedPageSize } = validatePagination(page, pageSize);
+        console.log(`Fetching items for category ${categoryId} - page: ${validatedPage}, pageSize: ${validatedPageSize}`);
+
         const items = await Item.findAll({
             where: { categoryId },
-            limit: pageSize,
-            offset: (page - 1) * pageSize
+            limit: validatedPageSize,
+            offset: (validatedPage - 1) * validatedPageSize
         });
+
         console.log('Items fetched:', items);
         if (items && items.length) {
             return items;
@@ -72,7 +85,7 @@ module.exports.getItemById = async (id) => {
 module.exports.addItem = async (itemData, imageFile) => {
     try {
         console.log('Adding new item with data:', itemData);
-        
+
         // Ensure published is a boolean
         itemData.published = itemData.published ? true : false;
 
@@ -123,12 +136,15 @@ const streamUpload = (imageFile) => {
 // Get published items with pagination
 module.exports.getPublishedItems = async (page = 1, pageSize = 10) => {
     try {
-        console.log(`Fetching published items - page: ${page}, pageSize: ${pageSize}`);
+        const { validatedPage, validatedPageSize } = validatePagination(page, pageSize);
+        console.log(`Fetching published items - page: ${validatedPage}, pageSize: ${validatedPageSize}`);
+
         const items = await Item.findAll({
             where: { published: true },
-            limit: pageSize,
-            offset: (page - 1) * pageSize
+            limit: validatedPageSize,
+            offset: (validatedPage - 1) * validatedPageSize
         });
+
         console.log('Published items fetched:', items);
         if (items && items.length) {
             return items;
@@ -144,15 +160,18 @@ module.exports.getPublishedItems = async (page = 1, pageSize = 10) => {
 // Get published items by category with pagination
 module.exports.getPublishedItemsByCategory = async (categoryId, page = 1, pageSize = 10) => {
     try {
-        console.log(`Fetching published items for category ${categoryId} - page: ${page}, pageSize: ${pageSize}`);
+        const { validatedPage, validatedPageSize } = validatePagination(page, pageSize);
+        console.log(`Fetching published items for category ${categoryId} - page: ${validatedPage}, pageSize: ${validatedPageSize}`);
+
         const items = await Item.findAll({
             where: {
                 published: true,
                 categoryId
             },
-            limit: pageSize,
-            offset: (page - 1) * pageSize
+            limit: validatedPageSize,
+            offset: (validatedPage - 1) * validatedPageSize
         });
+
         console.log('Published items by category fetched:', items);
         if (items && items.length) {
             return items;

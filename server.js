@@ -31,7 +31,7 @@ cloudinary.config({
 
 const upload = multer();
 
-// Set up Handlebars engine
+// Set up Handlebars engine with runtimeOptions to allow prototype property access
 const hbs = exphbs.create({
     extname: '.hbs',
     helpers: {
@@ -56,6 +56,10 @@ const hbs = exphbs.create({
             let day = dateObj.getDate().toString();
             return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
         }
+    },
+    runtimeOptions: {
+        allowProtoPropertiesByDefault: true,  // Allow access to prototype properties
+        allowProtoMethodsByDefault: true      // Allow access to prototype methods
     }
 });
 
@@ -75,7 +79,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
-
 // Home Route
 app.get('/', (req, res) => {
     res.render('home', { title: "Motorcycle Shop", activeRoute: req.path });
@@ -163,6 +166,9 @@ app.get('/shop', async (req, res) => {
         viewData.categoriesMessage = "No categories available.";
         console.error("Error fetching categories for shop route:", err);
     }
+
+    // Log the viewData to inspect what is passed to the template
+    console.log("viewData:", viewData);
 
     res.render('shop', { data: viewData });
 });
@@ -283,24 +289,16 @@ app.post('/items/add', upload.single("featureImage"), (req, res) => {
         })
         .catch((error) => {
             console.error("Cloudinary upload error:", error);
-            res.status(500).send("Error uploading image to Cloudinary.");
+            res.status(500).send("Error uploading image.");
         });
 });
 
-// Route to get all items
-app.get('/items', async (req, res) => {
-    try {
-        let page = parseInt(req.query.page) || 1;
-        let pageSize = parseInt(req.query.pageSize) || 10;
-        let items = await storeService.getAllItems(page, pageSize);
-        res.json(items); // Return all items as JSON
-    } catch (err) {
-        console.error("Error fetching all items:", err);
-        res.status(500).send("Unable to fetch items.");
-    }
+// Default Route for 404
+app.use((req, res) => {
+    res.status(404).render('404', { title: "Page Not Found", activeRoute: req.path });
 });
 
-// Server Setup
+// Server start
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(`Server started on port ${PORT}`);
 });
